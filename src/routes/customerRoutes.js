@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { addCustomer } = require('../controllers/customerController');
+const { addCustomer,getAllCustomers, getCustomer,updateCustomer } = require('../controllers/customerController');
 
 // Route to get signle customer
 router.get('/get', getCustomer);
