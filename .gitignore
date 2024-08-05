@@ -7,4 +7,3 @@ yarn-error.log*
 coverage/
 .env
 .env.*
-.vercel

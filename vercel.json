@@ -23,6 +23,7 @@
     }
   ],
     "routes": [
+<<<<<<< HEAD
     {
       "src": "/api/customers/(.*)",
       "dest": "/src/routes/customerRoutes.js"
@@ -41,3 +42,11 @@
     }
   ]
 }
+=======
+        {
+            "src": "/(.*)",
+            "dest": "/index.js"
+        }
+    ]
+} 
+>>>>>>> 033581f936a771fb32d3ae7086005e8a2bedef91
