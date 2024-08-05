@@ -6,7 +6,6 @@ const testRoutes = require('./routes/leapTestRoutes');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Import the test routes
 
 app.use(express.json());
 
