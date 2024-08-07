@@ -1,52 +1,15 @@
 {
-    "version": 2,
-    "builds": [
+  "version": 2,
+  "builds": [
     {
       "src": "src/index.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "src/routes/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "src/controllers/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "src/models/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "src/services/**/*.js",
-      "use": "@vercel/node"
     }
   ],
-    "routes": [
-<<<<<<< HEAD
-    {
-      "src": "/api/customers/(.*)",
-      "dest": "/src/routes/customerRoutes.js"
-    },
-    {
-      "src": "/api/jobs/(.*)",
-      "dest": "/src/routes/jobRoutes.js"
-    },
-    {
-      "src": "/api/test/(.*)",
-      "dest": "/src/routes/leapTestRoutes.js"
-    },
+  "routes": [
     {
       "src": "/(.*)",
       "dest": "/src/index.js"
     }
   ]
-}
-=======
-        {
-            "src": "/(.*)",
-            "dest": "/index.js"
-        }
-    ]
-} 
->>>>>>> 033581f936a771fb32d3ae7086005e8a2bedef91
+}  
