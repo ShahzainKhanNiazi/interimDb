@@ -51,7 +51,16 @@ const fetchAndStoreAllCustomers = async () => {
         call_center_rep: customer.call_center_rep
       }));
 
-      await Customer.insertMany(customers, { ordered: false });
+        // Try to insert the customers, and catch any duplicate key errors
+        try {
+            await Customer.insertMany(customers, { ordered: false });
+          } catch (error) {
+            if (error.code === 11000) { // 11000 is the duplicate key error code
+              console.error('Duplicate customer IDs found and skipped:', error.writeErrors.map(err => err.err.op.customerId));
+            } else {
+              throw error;
+            }
+          }
 
       console.log(`Page ${page} of ${data.meta.pagination.total_pages} processed successfully.`);
 
