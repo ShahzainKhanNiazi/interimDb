@@ -3,6 +3,7 @@ const express = require('express');
 const connectDB = require('../config/db');
 const testRoutes = require('./routes/leapTestRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
+const { fetchAndStoreAllCustomers } = require('./services/migrateCustomers');
 
 
 const app = express();
