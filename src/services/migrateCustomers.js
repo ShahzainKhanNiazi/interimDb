@@ -19,7 +19,7 @@ const fetchData = async (url) => {
 
 const fetchAndStoreAllCustomers = async () => {
   let page = 1;
-  const limit = 50;
+  const limit = 30;
   let hasMore = true;
 
   while (hasMore) {
