@@ -27,6 +27,17 @@ app.use('/api/test', testRoutes);
 app.use('/api/migrate', migrationRoutes);
 
 
+// Trigger migration process
+(async () => {
+  try {
+      console.log('Starting customer migration process...');
+      await fetchAndStoreAllCustomers();
+      console.log('Customer migration process completed.');
+  } catch (error) {
+      console.error('Error during customer migration process:', error);
+  }
+})();
+
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
