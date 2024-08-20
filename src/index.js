@@ -22,7 +22,7 @@ app.get("/", (req, res) => {
 app.use('/api/customers', require('./routes/customerRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/users', userRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
 
 
 // Test routes
