@@ -2,7 +2,7 @@ const User = require('../models/User');
 
 
 // Get a single user by ID
-const getUser = async (req, res) => {
+const getSingleUser = async (req, res) => {
     const { id } = req.params;
     try {
       const user = await User.findById(id);
@@ -57,4 +57,4 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { getUser, getAllUsers, assignRole, updateUser };
+module.exports = { getSingleUser, getAllUsers, assignRole, updateUser };

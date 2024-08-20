@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { assignRole, updateUser } = require('../controllers/userController');
+const { assignRole, updateUser, getAllUsers, getSingleUser } = require('../controllers/userController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 
 // Get a single user by ID
-router.get('/:id', getUserById);
+router.get('/:id', authenticateToken, getSingleUser);
 // Get all users
-router.get('/', getAllUsers);
+router.get('/', authenticateToken, getAllUsers);
 // Assign a role to a user
-router.post('/assign-role', assignRole);
+router.post('/assign-role', authenticateToken, assignRole);
 // Update user details
-router.put('/update', updateUser);
+router.put('/update', authenticateToken, updateUser);
 
 module.exports = router;
