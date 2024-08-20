@@ -6,6 +6,7 @@ const authRoutes = require('./routes/authRoutes');
 const testRoutes = require('./routes/leapTestRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
 
+
 const app = express();
 const port = process.env.PORT || 3000;
 
