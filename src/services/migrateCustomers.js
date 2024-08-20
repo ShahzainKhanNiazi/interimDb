@@ -19,7 +19,7 @@ const fetchData = async (url) => {
 
 const fetchAndStoreAllCustomers = async () => {
   let page = 1;
-  const limit = 30;
+  const limit = 40;
   let hasMore = true;
 
   while (hasMore) {
@@ -64,7 +64,7 @@ const fetchAndStoreAllCustomers = async () => {
 
       console.log(`Page ${page} of ${data.meta.pagination.total_pages} processed successfully.`);
 
-      hasMore = page < data.meta.pagination.total_pages;
+      hasMore = page < 10;
       page++;
     } catch (error) {
       console.error('Error fetching or storing customers:', error);

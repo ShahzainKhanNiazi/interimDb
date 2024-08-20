@@ -2,18 +2,7 @@ const { fetchAllJobs, fetchAllCustomers } = require('../services/leapService.js'
 const { handleError } = require('../utils/errorHandler');
 const Job = require('../models/Job'); 
 const Customer = require('../models/Customer');
-const { fetchAndStoreAllCustomers } = require('../services/migrateCustomers.js');
 
-
-
-const migrateAllCustomers = async (req, res) => {
-  try {
-    await fetchAndStoreAllCustomers();
-    res.status(200).json({ message: 'Customer migration started successfully.' });
-  } catch (error) {
-    handleError(res, error);
-  }
-};
 
 const migrateCustomers = async (req, res) => {
   const { limit, page } = req.query;
@@ -93,6 +82,5 @@ const migrateJobs = async (req, res) => {
 
 module.exports = {
     migrateCustomers,
-    migrateAllCustomers,
     migrateJobs
 };
