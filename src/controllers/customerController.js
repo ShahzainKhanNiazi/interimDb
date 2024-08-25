@@ -53,13 +53,38 @@ const getCustomer = async (req, res) => {
 // Controller function to get all customers
 const getAllCustomers = async (req, res) => {
   try {
-    const customers = await Customer.find();
-    return res.status(200).json(customers);
+    // Get the page and limit from the query parameters, or use defaults
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 records per page
+
+    // Calculate the number of records to skip
+    const skip = (page - 1) * limit;
+
+    // Fetch the paginated records
+    const customers = await Customer.find().skip(skip).limit(limit);
+
+    // Get the total number of records in the collection
+    const totalCustomers = await Customer.countDocuments();
+
+    // Calculate the total number of pages
+    const totalPages = Math.ceil(totalCustomers / limit);
+
+    // Return the paginated data along with some meta information
+    return res.status(200).json({
+      data: {
+        page,
+        totalPages,
+        limit,
+        totalCustomers,
+        customers,
+      }
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Controller function to update a customer
 const updateCustomer = async (req, res) => {
