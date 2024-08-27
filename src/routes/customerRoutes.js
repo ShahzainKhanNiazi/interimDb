@@ -3,7 +3,7 @@ const router = express.Router();
 const { addCustomer,getAllCustomers, getCustomer,updateCustomer } = require('../controllers/customerController');
 
 // Route to get signle customer
-router.get('/get', getCustomer);
+router.get('/get/:id', getCustomer);
 
 // Route to get all customers
 router.get('/getAll', getAllCustomers);

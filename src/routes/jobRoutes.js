@@ -3,7 +3,7 @@ const router = express.Router();
 const { addJob, getAllJobs, getJob, updateJob } = require('../controllers/jobController');
 
 // Route to get signle job
-router.get('/get', getJob);
+router.get('/get/:id', getJob);
 
 // Route to get all jobs
 router.get('/getAll', getAllJobs);
