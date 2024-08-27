@@ -48,7 +48,9 @@ const fetchAndStoreAllCustomers = async () => {
         canvasser_type: customer.canvasser_type,
         canvasser: customer.canvasser,
         call_center_rep_type: customer.call_center_rep_type,
-        call_center_rep: customer.call_center_rep
+        call_center_rep: customer.call_center_rep,
+        phones: customer.phones ? customer.phones.data : [],
+        address: customer.address || {},
       }));
 
         // Try to insert the customers, and catch any duplicate key errors
