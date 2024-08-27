@@ -41,7 +41,7 @@ const fetchJobById = async (jobId) => {
 
 const fetchCustomerById = async (customerId) => {
   try {
-    const response = await axios.get(`${process.env.LEAP_API_URL}/customers/${customerId}`, {
+    const response = await axios.get(`${process.env.LEAP_API_URL}/customers/${customerId}?includes[]=phones&includes[]=address`, {
       headers: {
         'Authorization': `Bearer ${process.env.LEAP_API_TOKEN}`
       }
@@ -66,7 +66,7 @@ const fetchAllJobs = async (limit = 5, page = 1) => {
 };
 
 const fetchAllCustomers = async (limit = 5, page = 1) => {
-  const url = `${process.env.LEAP_API_URL}/customers?limit=${limit}&page=${page}`;
+  const url = `${process.env.LEAP_API_URL}/customers?limit=${limit}&page=${page}&includes[]=phones&includes[]=address`;
   try {
     const data = await fetchData(url);
     return data;
