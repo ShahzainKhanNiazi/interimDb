@@ -71,13 +71,12 @@ const getAllCustomers = async (req, res) => {
 
     // Return the paginated data along with some meta information
     return res.status(200).json({
-      data: {
         page,
         totalPages,
         limit,
         totalCustomers,
         customers,
-      }
+      
     });
   } catch (err) {
     console.error(err);
