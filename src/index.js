@@ -6,13 +6,13 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const testRoutes = require('./routes/leapTestRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
-const leapWebhookRoutes = require('./routes/leapWebhookRoutes')
+const leapWebhookRoutes = require('./routes/leapWebhookRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(express.json()); // for parsing application/json
+app.use(express.json());
 
 // CORS Middleware
 app.use(cors({
@@ -21,7 +21,7 @@ app.use(cors({
 }));
 
 // Connect to the Database
-connectDB()
+connectDB();
 
 // Routes
 app.get("/", (req, res) => {
@@ -32,14 +32,15 @@ app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks/leap', leapWebhookRoutes);
-
-
-// Test routes
 app.use('/api/test', testRoutes);
-// Migration routes
 app.use('/api/migrate', migrationRoutes);
+
+
 
 // Start the Express server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+// Export the Express app as a function
+module.exports = app;
