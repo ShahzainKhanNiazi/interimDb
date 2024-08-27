@@ -60,8 +60,21 @@ const getJob = async (req, res) => {
 // Controller function to get all jobs
 const getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find();
-    return res.status(200).json(jobs);
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 records per page
+    const skip = (page - 1) * limit;
+
+    const jobs = await Job.find().skip(skip).limit(limit);
+    const totalJobs = await Job.countDocuments();
+    const totalPages = Math.ceil(totalJobs / limit);
+
+    return res.status(200).json({
+      page,
+      totalPages,
+      limit,
+      totalJobs,
+      jobs,
+    });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
