@@ -38,9 +38,6 @@ app.use('/api/migrate', migrationRoutes);
 
 
 // Start the Express server
-// app.listen(port, () => {
-//   console.log(`Server running on port ${port}`);
-// });
-
-// Export the Express app as a function
-module.exports = app;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
