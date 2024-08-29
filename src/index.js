@@ -14,9 +14,21 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
+
 // CORS Middleware
+const allowedOrigins = [
+  'http://localhost:3000', // Development
+  'https://interim-db-frontend.vercel.app', // Production
+];
+
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow requests from this origin (your frontend)
+  origin: (origin, callback) => {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true, // Allow cookies or authorization headers to be sent
 }));
 
