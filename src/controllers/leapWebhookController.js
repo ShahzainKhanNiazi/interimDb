@@ -390,7 +390,7 @@ const handleWebhook = async (req, res) => {
                     createdAt: jobData.created_at,
                     updatedAt: jobData.updated_at,
                     assignedTo: jobData.created_by || null,
-                    status: jobData.current_stage?.code || '',
+                    status: 'open' || '',
                     source: 'Leap',
                     synced: false
                   });
