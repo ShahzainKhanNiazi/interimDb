@@ -1,27 +1,25 @@
 const mongoose = require('mongoose');
 
 const customerSchema = new mongoose.Schema({
-  customerId: { type: Number, required: true, unique: true },
-  company_name: String,
-  first_name: { type: String, required: true },
-  last_name: { type: String, required: true },
+  // CRM-specific IDs for tracking
+  leapCustomerId: { type: String },  // Leap customer ID
+  ghlCustomerId: { type: String },   // GHL contact ID
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   email: { type: String, required: true },
-  additional_emails: [String],
-  referred_by_type: String,
-  referred_by_note: String,
-  call_required: { type: Boolean, default: false },
-  appointment_required: { type: Boolean, default: false },
-  note: String,
-  is_commercial: { type: Boolean, default: false },
-  created_at: Date,
-  updated_at: Date,
-  deleted_at: Date,
-  management_company: String,
-  property_name: String,
-  canvasser_type: String,
-  canvasser: String,
-  call_center_rep_type: String,
-  call_center_rep: String
-});
-module.exports = mongoose.model('Customer', customerSchema);
+  phone: { type: String, required: true },
+  address: {
+    addressLine: { type: String, required: false },  
+    city: { type: String, required: false },
+    state: { type: String, required: false },  
+    postalCode: { type: String, required: false },  
+  },
+  companyName: { type: String, required: false },
+  customerRep: { type: String },
+  notes: { type: String, required: false },
+  source: { type: String, enum: ['Leap', 'GHL'], required: true },
+  synced: { type: Boolean, default: false }
+}, { timestamps: true });
 
+const Customer = mongoose.model('Customer', customerSchema);
+module.exports = Customer;

@@ -7,6 +7,8 @@ const authRoutes = require('./routes/authRoutes');
 const testRoutes = require('./routes/leapTestRoutes');
 const migrationRoutes = require('./routes/migrationRoutes');
 const leapWebhookRoutes = require('./routes/leapWebhookRoutes');
+const ghlWebhookRoutes = require('./routes/ghlWebhookRoutes');
+
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -44,6 +46,7 @@ app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/webhooks/leap', leapWebhookRoutes);
+app.use('/api/webhooks/ghl', ghlWebhookRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/migrate', migrationRoutes);
 
