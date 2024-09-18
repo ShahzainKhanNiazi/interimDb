@@ -380,6 +380,12 @@ const handleWebhook = async (req, res) => {
 
                 // Step 4: Create the new job in MongoDB
                 try {
+                  const trades = jobData.trades?.data.map(trade => ({
+                    id: trade.id,
+                    name: trade.name
+                  })) || [];
+
+
                   updatedJob = new Job({
                     leapJobId: jobData.id,
                     name: jobData.name || 'Unnamed Job',
@@ -392,6 +398,7 @@ const handleWebhook = async (req, res) => {
                     assignedTo: jobData.created_by || null,
                     status: 'open' || '',
                     source: 'Leap',
+                    trades: trades,
                     synced: false
                   });
 
