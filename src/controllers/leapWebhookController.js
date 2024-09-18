@@ -118,13 +118,13 @@ const handleWebhook = async (req, res) => {
               const jobInfo = await fetchJobById(notification.id);
               const jobData = jobInfo.data;
 
-              console.log("This is the job fetched:");
-              console.log(jobData);
-
+              
               // Check if job already exists in MongoDB to prevent duplicates
               const existingJob = await Job.findOne({ leapJobId: jobData.id });
               if (existingJob) {
                 console.warn(`Job with ID ${jobData.id} already exists.`);
+                console.log("This is the job fetched from MongoDB:");
+                console.log(existingJob)
 
                 // Check if the job is already synced with GHL
                 if (existingJob.synced) {
@@ -133,10 +133,14 @@ const handleWebhook = async (req, res) => {
                 } else {
                   try {
                     console.log(`Job ${jobData.id} exists but is not synced. Proceeding with sync.`);
+ 
 
                     const existingCustomer = await Customer.findById(existingJob.customerId);
+                       if (!existingCustomer) {
+                             console.log(`Customer with ID ${existingJob.customerId} not found`);
+                          }
 
-                    console.log("this is the existing customer");
+                          console.log("this is the existing customer");
                     console.log(existingCustomer);
 
                     // Map existing job data for GHL
