@@ -136,6 +136,9 @@ const handleWebhook = async (req, res) => {
 
                     const existingCustomer = await Customer.findById(existingJob.customerId);
 
+                    console.log("this is the existing customer");
+                    console.log(existingCustomer);
+
                     // Map existing job data for GHL
                     const mappedOpportunityData = mapJobToGHL(existingJob, existingCustomer);
 
