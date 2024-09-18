@@ -134,8 +134,10 @@ const handleWebhook = async (req, res) => {
                   try {
                     console.log(`Job ${jobData.id} exists but is not synced. Proceeding with sync.`);
 
+                    const existingCustomer = await Customer.findById(existingJob.customerId);
+
                     // Map existing job data for GHL
-                    const mappedOpportunityData = mapJobToGHL(existingJob, await Customer.findById(existingJob.customerId));
+                    const mappedOpportunityData = mapJobToGHL(existingJob, existingCustomer);
 
                     // Sync job (opportunity) to GHL
                     const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);

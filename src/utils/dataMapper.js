@@ -121,11 +121,11 @@ exports.mapJobToGHL = (job, customer) => {
     locationId: process.env.GHL_LOCATION_ID,  // Location ID for GHL (set in environment)
     pipelineStageId: pipelineStageId,  // ID of the stage in the pipeline
 
-    name: `${customer.firstName} ${customer.lastName}`.trim() || '', 
-    status: job.status || 'open',  // Status of the opportunity (e.g., "open", "won", "lost")
+    name: `${customer?.firstName} ${customer?.lastName}`.trim() || '', 
+    status: job?.status || 'open',  // Status of the opportunity (e.g., "open", "won", "lost")
 
     // GHL Contact
-    contactId: customer.ghlCustomerId,  // GHL Contact ID for the opportunity
+    contactId: customer?.ghlCustomerId,  // GHL Contact ID for the opportunity
 
     // Optional fields
     source: 'Leap',  // Source of the opportunity,
@@ -134,7 +134,7 @@ exports.mapJobToGHL = (job, customer) => {
     customFields: [
       {
         key: 'leap_description',
-        field_value: job.description || "Untitled Job",  //  Job description or fallback to "Untitled Job"  //
+        field_value: job?.description || "Untitled Job",  //  Job description or fallback to "Untitled Job"  //
       }, 
     ],
   };
