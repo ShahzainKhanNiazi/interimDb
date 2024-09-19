@@ -284,6 +284,7 @@ const handleWebhook = async (req, res) => {
 
              // Define the stages that should trigger a sync
                  const syncStages = [
+                  'Lead',
                    'Appointment Scheduled',
                    'Submitted',
                    'Proposal Viewed',

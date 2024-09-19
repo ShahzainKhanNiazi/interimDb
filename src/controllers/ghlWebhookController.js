@@ -93,15 +93,16 @@ const handleStageChangeWebhook = async (req, res) => {
 
     // Step 4: Only sync specific stages from GHL to Leap
     const syncStages = [
-      'Appointment Scheduled',
-      'Submitted',
-      'Proposal Viewed',
-      'Awaiting Schedule Date',
-      'Work Scheduled',
-      'Call Backs',
-      'Invoiced',
-      'Paid',
-    ];
+       'Lead',
+       'Appointment Scheduled',
+       'Submitted',
+       'Proposal Viewed',
+       'Awaiting Schedule Date',
+       'Work Scheduled',
+       'Invoiced',
+       'Call Backs',
+       'Paid',
+     ];
 
     // If the stage change is not in the list, return without syncing
     if (!syncStages.includes(ghlStageName)) {
