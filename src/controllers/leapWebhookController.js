@@ -210,6 +210,8 @@ const handleWebhook = async (req, res) => {
                   try {
                     const mappedCustomerData = mapCustomerToGHL(customer);
                     const ghlCustomer = await syncCustomerToGHL(mappedCustomerData);
+                    console.log("this is the ghl customer created")
+                    console.log(ghlCustomer)
                     customer.ghlCustomerId = ghlCustomer.contact.id;
                     customer.synced = true;
                     await customer.save();
@@ -235,6 +237,8 @@ const handleWebhook = async (req, res) => {
 
                 const leapStageName = leapStageMapping.idToName[jobData.current_stage?.code] || leapStageMapping.defaultStageId;
                 console.log("Leap stage name:", leapStageName);
+
+                console.log("this is the job fetched from Leap and now storing it into MongoDB");
 
                 const job = new Job({
                   leapJobId: jobData.id,
