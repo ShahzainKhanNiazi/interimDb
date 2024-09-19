@@ -29,24 +29,55 @@ const ghlRequest = async (method, url, data = {}) => {
   }
 };
 
-// Sync customer (contact) to GHL (already mapped data)
+// // Sync customer (contact) to GHL (already mapped data)
+// const syncCustomerToGHL = async (customerData) => {
+//   try {
+//     console.log(`Syncing customer to GHL: ${JSON.stringify(customerData)}`);
+    
+//     // Since customerData is already mapped in the required GHL API format, we simply pass it
+//     const response = await ghlRequest('post', '/contacts/', customerData);  // Directly sending customerData
+//     console.log('Customer synced to GHL:', response);
+    
+//     return response;
+//   } catch (error) {
+//     console.error('Error syncing customer to GHL:', error);
+//     throw error;
+//   }
+// };
+
+
+// Sync customer (contact) to GHL using API v1
 const syncCustomerToGHL = async (customerData) => {
   try {
-    console.log(`Syncing customer to GHL: ${JSON.stringify(customerData)}`);
-    
-    // Since customerData is already mapped in the required GHL API format, we simply pass it
-    const response = await ghlRequest('post', '/contacts/', customerData);  // Directly sending customerData
-    console.log('Customer synced to GHL:', response);
-    
-    return response;
-  } catch (error) {
-    console.error('Error syncing customer to GHL:', error);
-    throw error;
-  }
-};
+    console.log(`Syncing customer to GHL (v1): ${JSON.stringify(customerData)}`);
 
-module.exports = {
-  syncCustomerToGHL,
+    // Create the Axios request config
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: 'https://rest.gohighlevel.com/v1/contacts/', // GHL API v1 URL for creating a contact
+      headers: {
+        Authorization: `Bearer ${process.env.GHL_API_TOKEN_2}`, 
+        'Content-Type': 'application/json',
+      },
+      data: customerData, 
+    };
+
+    // Sending the request using Axios
+    const response = await axios(config);
+    
+    console.log('Customer synced to GHL (v1):', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error syncing customer to GHL (v1):', error.response?.data || error.message);
+
+    // Throw a custom error to handle it in calling functions
+    throw new ApiError(
+      error.response?.status || 500,
+      'Error syncing customer to GHL',
+      error.response?.data || error.message
+    );
+  }
 };
 
 
