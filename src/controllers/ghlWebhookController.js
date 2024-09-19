@@ -84,10 +84,10 @@ const handleStageChangeWebhook = async (req, res) => {
     }
 
     // Step 3: Get the GHL stage name using the stage ID
-    const ghlStageName = ghlStageMapping.idToName[pipelineStageId] || ghlStageMapping.defaultStageId;
+    const ghlStageName = ghlStageMapping.idToName[pipeline_stage] || ghlStageMapping.defaultStageId;
 
     if (!ghlStageName) {
-      console.error(`Stage name not found for GHL stage ID: ${pipelineStageId}`);
+      console.error(`Stage name not found for GHL stage ID: ${pipeline_stage}`);
       return res.status(400).send('Invalid stage ID');
     }
 
