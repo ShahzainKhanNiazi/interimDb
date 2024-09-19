@@ -44,8 +44,9 @@ const handleJobWebhook = async (req, res) => {
 // Handle GHL opportunity stage change webhook
 const handleStageChangeWebhook = async (req, res) => {
   try {
-    const { id: opportunityId, pipeline_stage } = req.body;  // Extracting fields from the payload
+    const { id: opportunityId, pipeline_stage: pipleline_stage } = req.body;  // Extracting fields from the payload
     console.log('Received GHL opportunity stage change webhook:', req.body);
+    console.log(`This is the pipeline stage in GHL ${pipleline_stage}`);
 
     // Step 1: Find the job in MongoDB by GHL job ID
     let job = await Job.findOne({ ghlJobId: opportunityId });
