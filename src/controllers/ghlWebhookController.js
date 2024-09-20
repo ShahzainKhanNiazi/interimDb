@@ -94,7 +94,6 @@ const handleStageChangeWebhook = async (req, res) => {
 
     // Step 4: Only sync specific stages from GHL to Leap
     const syncStages = [
-       'Lead',
        'Appointment Scheduled',
        'Submitted',
        'Proposal Viewed',
@@ -104,12 +103,6 @@ const handleStageChangeWebhook = async (req, res) => {
        'Call Backs',
        'Paid',
      ];
-
-    // If the stage change is not in the list, return without syncing
-    if (!syncStages.includes(ghlStageName)) {
-      console.log(`Stage ${ghlStageName} does not require syncing. No action taken.`);
-      return res.status(200).send('Stage change not relevant for syncing');
-    }
 
     // Step 5: Check if the stage has actually changed before updating
     if (job.currentStage === ghlStageName) {
@@ -123,6 +116,13 @@ const handleStageChangeWebhook = async (req, res) => {
     await job.save();
 
     console.log(`Job ${opportunityId} stage updated to ${ghlStageName} in MongoDB.`);
+
+    
+    // If the stage change is not in the list, return without syncing
+    if (!syncStages.includes(ghlStageName)) {
+      console.log(`Stage ${ghlStageName} does not require syncing. No action taken.`);
+      return res.status(200).send('Stage change not relevant for syncing');
+    }
 
     // Step 7: Map GHL stage name to Leap stage ID
     const leapStageId = leapStageMapping.nameToId[ghlStageName] || leapStageMapping.defaultStageId;
