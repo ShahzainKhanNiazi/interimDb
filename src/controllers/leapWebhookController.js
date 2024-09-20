@@ -509,12 +509,6 @@ try {
               // Step 5: Check for stage duplication before updating
               const leapStageName = leapStageMapping.idToName[notification.stage_moved_to.code] || leapStageMapping.defaultStageId;
 
-              // Step 6: Only sync relevant stages with GHL
-              if (!syncStages.includes(leapStageName)) {
-                console.log(`Stage ${leapStageName} does not require syncing. No action taken.`);
-                result = { action: 'jobs', operation: 'stage_change', status: 'No sync required for this stage' };
-                continue;
-              }
 
               if (updatedJob.currentStage === leapStageName) {
                 console.log(`Job ${notification.id} is already at stage ${leapStageName}. No update needed.`);
@@ -538,6 +532,13 @@ try {
                   result = { action: 'jobs', operation: 'invalid_ghl_stage', error: 'Invalid GHL stage mapping' };
                   continue;
                 }
+
+                // Step 6: Only sync relevant stages with GHL
+              if (!syncStages.includes(leapStageName)) {
+                console.log(`Stage ${leapStageName} does not require syncing. No action taken.`);
+                result = { action: 'jobs', operation: 'stage_change', status: 'No sync required for this stage' };
+                continue;
+              }
 
                 // Step 9: Sync the updated job stage with GHL
                 try {
