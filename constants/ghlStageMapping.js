@@ -40,7 +40,7 @@ const ghlStageMapping = {
     'Follow Up (Long Term)': 'Follow Up (Long Term)',
     'Follow Up (No Automations)': 'Follow Up (No Automations)',
     'In Contact': 'In Contact',
-    'Invalid #': 'Invalid #',
+    'Invaild #': 'Invalid #',
     'Never Answered': 'Never Answered',
     'Estimate Booked': 'Appointment Scheduled',
     'Submitted': 'Submitted',
