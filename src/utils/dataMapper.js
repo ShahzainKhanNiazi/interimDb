@@ -57,37 +57,10 @@ exports.mapJobToLeap = (job, customer) => {
 };
 
 // // Map MongoDB customer data to GHL contact format
-// exports.mapCustomerToGHL = (customer) => {
-//   return {
-//     firstName: customer.firstName,  
-//     lastName: customer.lastName,    
-//     email: customer.email || '',    
-//     phone: customer.phone || '',
-//     address1: customer.address?.addressLine || '',  
-//     city: customer.address?.city || '',
-//     state: customer.address?.state || '',
-//     postalCode: customer.address?.postalCode || '',
-//     companyName: customer.companyName || '',  
-//     tags: customer.tags || ['leap-customer'],  
-//     customField: 
-//       {
-//           "iU9cFhEGJCqkxIZeEAdg": customer.customerRep || '',
-//       }
-//   ,
-//     dnd: customer.dnd || false,  
-//     source: 'Leap'  
-//   };
-// };
-
-
-
-
-// Map MongoDB customer data to GHL contact format (v2)
 exports.mapCustomerToGHL = (customer) => {
   return {
     firstName: customer.firstName,  
     lastName: customer.lastName,    
-    name: `${customer.firstName} ${customer.lastName}`,  // Full name field for v2
     email: customer.email || '',    
     phone: customer.phone || '',
     address1: customer.address?.addressLine || '',  
@@ -95,18 +68,45 @@ exports.mapCustomerToGHL = (customer) => {
     state: customer.address?.state || '',
     postalCode: customer.address?.postalCode || '',
     companyName: customer.companyName || '',  
-    locationId: process.env.GHL_LOCATION_ID,  // Required in v2 API, set via environment variable
     tags: customer.tags || ['leap-customer'],  
-
-    // Map custom fields to the GHL v2 format
-    customFields: [
-      { id: 'iU9cFhEGJCqkxIZeEAdg', key: 'contact.leap_customer_rep', field_value: customer.customerRep || '' },
-    ],
-    dnd: customer.dnd || false, 
-    // Source field as 'Leap' indicating the origin of this data
-    source: 'Leap',
+    customField: 
+      {
+          "iU9cFhEGJCqkxIZeEAdg": customer.customerRep || '',
+      }
+  ,
+    dnd: customer.dnd || false,  
+    source: 'Leap'  
   };
 };
+
+
+
+
+// Map MongoDB customer data to GHL contact format (v2)
+// exports.mapCustomerToGHL = (customer) => {
+//   return {
+//     firstName: customer.firstName,  
+//     lastName: customer.lastName,    
+//     name: `${customer.firstName} ${customer.lastName}`,  // Full name field for v2
+//     email: customer.email || '',    
+//     phone: customer.phone || '',
+//     address1: customer.address?.addressLine || '',  
+//     city: customer.address?.city || '',
+//     state: customer.address?.state || '',
+//     postalCode: customer.address?.postalCode || '',
+//     companyName: customer.companyName || '',  
+//     locationId: process.env.GHL_LOCATION_ID,  // Required in v2 API, set via environment variable
+//     tags: customer.tags || ['leap-customer'],  
+
+//     // Map custom fields to the GHL v2 format
+//     customFields: [
+//       { id: 'iU9cFhEGJCqkxIZeEAdg', key: 'contact.leap_customer_rep', field_value: customer.customerRep || '' },
+//     ],
+//     dnd: customer.dnd || false, 
+//     // Source field as 'Leap' indicating the origin of this data
+//     source: 'Leap',
+//   };
+// };
 
 
 
