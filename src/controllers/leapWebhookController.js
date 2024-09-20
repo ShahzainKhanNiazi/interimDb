@@ -516,12 +516,19 @@ try {
                 continue;
               }
 
-              // Step 7: Update job stage in MongoDB
+              // Step 6: Update job stage in MongoDB
               try {
                 updatedJob.currentStage = leapStageName; 
                 updatedJob.updatedAt = new Date();
                 await updatedJob.save();
                 console.log(`Job ${notification.id} updated to stage ${leapStageName} in MongoDB.`);
+
+                // Step 7: Only sync relevant stages with GHL
+              if (!syncStages.includes(leapStageName)) {
+                console.log(`Stage ${leapStageName} does not require syncing. No action taken.`);
+                result = { action: 'jobs', operation: 'stage_change', status: 'No sync required for this stage' };
+                continue;
+              }
 
                 // Step 8: Map Leap stage name to GHL stage ID
                 const ghlStageId = ghlStageMapping.nameToId[leapStageName] || ghlStageMapping.defaultStageId;
@@ -533,12 +540,6 @@ try {
                   continue;
                 }
 
-                // Step 6: Only sync relevant stages with GHL
-              if (!syncStages.includes(leapStageName)) {
-                console.log(`Stage ${leapStageName} does not require syncing. No action taken.`);
-                result = { action: 'jobs', operation: 'stage_change', status: 'No sync required for this stage' };
-                continue;
-              }
 
                 // Step 9: Sync the updated job stage with GHL
                 try {
