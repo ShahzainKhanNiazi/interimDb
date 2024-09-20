@@ -257,7 +257,7 @@ try {
                   name: jobData.name || 'Unnamed Job',
                   customerId: customer._id,
                   description: jobData.description || '',
-                  pipeline: jobData.division.name || '',
+                  pipeline: jobData?.division?.name || '',
                   currentStage: leapStageName || 'Unknown',
                   createdAt: jobData.created_at,
                   updatedAt: jobData.updated_at,
