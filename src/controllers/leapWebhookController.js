@@ -471,19 +471,19 @@ try {
               else {
                 if(!updatedJob.synced) {
                   try {
-                    console.log(`Job ${jobData.id} exists but is not synced. Proceeding with sync.`);
+                    console.log(`Job ${updatedJob.id} exists but is not synced. Proceeding with sync.`);
   
   
-                    const existingCustomer = await Customer.findById(existingJob.customerId);
+                    const existingCustomer = await Customer.findById(updatedJob.customerId);
                        if (!existingCustomer) {
-                             console.log(`Customer with ID ${existingJob.customerId} not found`);
+                             console.log(`Customer with ID ${updatedJob.customerId} not found`);
                           }
   
                           console.log("this is the existing customer");
                     console.log(existingCustomer);
   
                     // Map existing job data for GHL
-                    const mappedOpportunityData = mapJobToGHL(existingJob, existingCustomer);
+                    const mappedOpportunityData = mapJobToGHL(updatedJob, existingCustomer);
   
                     // Sync job (opportunity) to GHL
                     const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
@@ -491,11 +491,11 @@ try {
                     console.log(ghlOpportunity);
   
                     // Update job with GHL opportunity ID and set it as synced
-                    existingJob.ghlJobId = ghlOpportunity.id;
-                    existingJob.synced = true;
-                    await existingJob.save();
+                    updatedJob.ghlJobId = ghlOpportunity.id;
+                    updatedJob.synced = true;
+                    await updatedJob.save();
   
-                    result = { action: 'jobs', operation: 'sync', status: 'Job synced with GHL', jobId: existingJob._id };
+                    result = { action: 'jobs', operation: 'sync', status: 'Job synced with GHL', jobId: updatedJob._id };
                   } catch (error) {
                     console.error(`Error syncing existing job with GHL: ${error.message}`);
                     errorOccurred = true;
