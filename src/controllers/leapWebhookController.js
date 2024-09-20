@@ -295,6 +295,8 @@ try {
               result = { action: 'jobs', operation: 'fetch', error: error.message };
             }
           }
+
+
           else if (notification.operation === 'stage_change') {
             console.log(`Job ID: ${notification.id} changed from ${notification.stage_moved_from.name} to ${notification.stage_moved_to.name}`);
 
@@ -423,7 +425,7 @@ try {
                     name: jobData.name || 'Unnamed Job',
                     customerId: customer._id,
                     description: jobData.description || '',
-                    pipeline: jobData.division.name || '',
+                    pipeline: jobData?.division?.name || '',
                     currentStage: leapStageName,
                     createdAt: jobData.created_at,
                     updatedAt: jobData.updated_at,
@@ -465,7 +467,44 @@ try {
                   result = { action: 'jobs', operation: 'create_job', error: error.message };
                   continue;
                 }
+              } 
+              else {
+                if(!updatedJob.synced) {
+                  try {
+                    console.log(`Job ${jobData.id} exists but is not synced. Proceeding with sync.`);
+  
+  
+                    const existingCustomer = await Customer.findById(existingJob.customerId);
+                       if (!existingCustomer) {
+                             console.log(`Customer with ID ${existingJob.customerId} not found`);
+                          }
+  
+                          console.log("this is the existing customer");
+                    console.log(existingCustomer);
+  
+                    // Map existing job data for GHL
+                    const mappedOpportunityData = mapJobToGHL(existingJob, existingCustomer);
+  
+                    // Sync job (opportunity) to GHL
+                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
+                    console.log("Opportunity response returned from GHL:");
+                    console.log(ghlOpportunity);
+  
+                    // Update job with GHL opportunity ID and set it as synced
+                    existingJob.ghlJobId = ghlOpportunity.id;
+                    existingJob.synced = true;
+                    await existingJob.save();
+  
+                    result = { action: 'jobs', operation: 'sync', status: 'Job synced with GHL', jobId: existingJob._id };
+                  } catch (error) {
+                    console.error(`Error syncing existing job with GHL: ${error.message}`);
+                    errorOccurred = true;
+                    result = { action: 'jobs', operation: 'sync', error: error.message };
+                  }
+
+                }  
               }
+              
 
               // Step 5: Check for stage duplication before updating
               const leapStageName = leapStageMapping.idToName[notification.stage_moved_to.code] || leapStageMapping.defaultStageId;
@@ -490,7 +529,7 @@ try {
                 await updatedJob.save();
                 console.log(`Job ${notification.id} updated to stage ${leapStageName} in MongoDB.`);
 
-                // Step 7: Map Leap stage name to GHL stage ID
+                // Step 8: Map Leap stage name to GHL stage ID
                 const ghlStageId = ghlStageMapping.nameToId[leapStageName] || ghlStageMapping.defaultStageId;
 
                 if (!ghlStageId) {
