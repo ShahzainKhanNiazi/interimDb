@@ -552,6 +552,11 @@ try {
                 const pipelineId =  await ghlPipelineMapping.nameToId[updatedJob.pipeline] || ghlDefaultPipelineId;
                 const pipelineStageId = await getPipelineStageId(pipelineId, updatedJob.currentStage);
 
+                console.log("this is the ghl pipeline id");
+                console.log(pipelineId)
+                console.log("this is the ghl pipeline stage");
+                console.log(pipelineStageId)
+
 
                 if (!pipelineStageId) {
                   console.error(`GHL stage ID not found for Leap stage: ${leapStageName}`);
