@@ -7,6 +7,7 @@ const { leapStageMapping, leapDefaultStage } = require('../../constants/leapStag
 const { ghlStageMapping, ghlDefaultStageId } = require('../../constants/ghlStageMapping');
 const { leapDivisionMapping, leapDefaultDivision } = require('../../constants/leapDivisionMapping');
 const { getPipelineStageId } = require('../helpers/getGhlPipelineStage');
+const { ghlPipelineMapping } = require('../../constants/ghlPipelineMapping');
 
 const handleWebhook = async (req, res) => {
   try {
