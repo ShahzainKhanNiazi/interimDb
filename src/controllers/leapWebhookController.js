@@ -549,6 +549,7 @@ try {
               }
 
                 // Step 8: Map Leap stage name to GHL pipeline stage ID
+                const pipelineId =  await ghlPipelineMapping.nameToId[updatedJob.pipeline] || ghlDefaultPipelineId;
                 const pipelineStageId = await getPipelineStageId(pipelineId, updatedJob.currentStage);
 
 
