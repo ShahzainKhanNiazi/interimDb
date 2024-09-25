@@ -3,7 +3,7 @@ const { syncCustomerToLeap, syncJobToLeap, updateJobStageInLeap } = require('../
 const Customer = require('../models/Customer');
 const Job = require('../models/Job');
 const { ghlDefaultStageId, ghlStageMapping } = require('../../constants/ghlStageMapping');
-const { leapStageMapping } = require('../../constants/leapStageMapping');
+const { leapStageMapping, leapDefaultStageId } = require('../../constants/leapStageMapping');
 
 // Handle GHL customer (contact) webhook
 const handleCustomerWebhook = async (req, res) => {
@@ -67,7 +67,7 @@ const handleStageChangeWebhook = async (req, res) => {
           return res.status(404).send('Customer not found');
         }
 
-        const mappedJobData = mapJobToLeap(job, customer);
+        const mappedJobData = await mapJobToLeap(job, customer);
 
         // Sync job with Leap
         const leapJob = await syncJobToLeap(mappedJobData);
@@ -85,24 +85,24 @@ const handleStageChangeWebhook = async (req, res) => {
     }
 
     // Step 3: Get the GHL stage name using the stage ID
-    const ghlStageName = ghlStageMapping.idToName[pipeline_stage] || ghlStageMapping.defaultStageId;
+    const ghlStageName = pipeline_stage;
 
     if (!ghlStageName) {
-      console.error(`Stage name not found for GHL stage ID: ${pipeline_stage}`);
+      console.error(`Stage name not found for GHL stage : ${pipeline_stage}`);
       return res.status(400).send('Invalid stage ID');
     }
 
     // Step 4: Only sync specific stages from GHL to Leap
     const syncStages = [
-       'Appointment Scheduled',
-       'Submitted',
-       'Proposal Viewed',
-       'Awaiting Schedule Date',
-       'Work Scheduled',
-       'Invoiced',
-       'Call Backs',
-       'Paid',
-     ];
+      'Estimate Booked',
+      'Submitted',
+      'Proposal Viewed',
+      'Awaiting Schedule Date',
+      'Work Scheduled',
+      'Invoiced',
+      'Call Backs',
+      'Paid',
+    ];
 
     // Step 5: Check if the stage has actually changed before updating
     if (job.currentStage === ghlStageName) {
@@ -125,7 +125,7 @@ const handleStageChangeWebhook = async (req, res) => {
     }
 
     // Step 7: Map GHL stage name to Leap stage ID
-    const leapStageId = leapStageMapping.nameToId[ghlStageName] || leapStageMapping.defaultStageId;
+    const leapStageId = leapStageMapping.nameToId[ghlStageName] || leapDefaultStageId;
 
     if (!leapStageId) {
       console.error(`Leap stage ID not found for GHL stage: ${ghlStageName}`);

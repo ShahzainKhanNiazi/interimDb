@@ -3,8 +3,10 @@ const { syncCustomerToGHL, syncOpportunityToGHL, updateOpportunityStageInGHL } =
 const { mapCustomerToGHL, mapJobToGHL } = require('../utils/dataMapper');
 const Customer = require('../models/Customer');
 const Job = require('../models/Job');
-const { leapStageMapping, leapDefaultStageId } = require('../../constants/leapStageMapping');
+const { leapStageMapping, leapDefaultStage } = require('../../constants/leapStageMapping');
 const { ghlStageMapping, ghlDefaultStageId } = require('../../constants/ghlStageMapping');
+const { leapDivisionMapping, leapDefaultDivision } = require('../../constants/leapDivisionMapping');
+const { getPipelineStageId } = require('../helpers/getGhlPipelineStage');
 
 const handleWebhook = async (req, res) => {
   try {
@@ -143,10 +145,12 @@ const handleWebhook = async (req, res) => {
                     console.log(existingCustomer);
 
                     // Map existing job data for GHL
-                    const mappedOpportunityData = mapJobToGHL(existingJob, existingCustomer);
+                    const mappedOpportunityData = await mapJobToGHL(existingJob, existingCustomer);
+
+                const pipelineId =  await ghlPipelineMapping.nameToId[existingJob.pipeline] || ghlDefaultPipelineId;        
 
                     // Sync job (opportunity) to GHL
-                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
+                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
                     console.log("Opportunity response returned from GHL:");
                     console.log(ghlOpportunity);
 
@@ -246,8 +250,10 @@ try {
                   name: trade.name
                 })) || [];
 
-                const leapStageName = leapStageMapping.idToName[jobData.current_stage?.code] || leapStageMapping.defaultStageId;
+                const leapStageName = leapStageMapping.idToName[jobData?.current_stage?.code] || leapDefaultStage;
+                const leapDivisionName = leapDivisionMapping.nameToId[jobData?.division?.name] || leapDefaultDivision;
                 console.log("Leap stage name:", leapStageName);
+                console.log("Leap division name:", leapDivisionName);
 
                 console.log("this is the job fetched from Leap and now storing it into MongoDB");
                 console.log(jobData)
@@ -257,7 +263,7 @@ try {
                   name: jobData.name || 'Unnamed Job',
                   customerId: customer._id,
                   description: jobData.description || '',
-                  pipeline: jobData?.division?.name || '',
+                  pipeline: leapDivisionName || 'General',
                   currentStage: leapStageName || 'Unknown',
                   createdAt: jobData.created_at,
                   updatedAt: jobData.updated_at,
@@ -271,10 +277,12 @@ try {
                 await job.save();
                 console.log(`Job ${notification.id} saved to the database.`);
 
-                const mappedOpportunityData = mapJobToGHL(job, customer);
+                const mappedOpportunityData = await mapJobToGHL(job, customer);
+
+                const pipelineId =  await ghlPipelineMapping.nameToId[job.pipeline] || ghlDefaultPipelineId;        
 
                 try {
-                  const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
+                  const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
                   job.ghlJobId = ghlOpportunity.id;
                   job.synced = true;
                   await job.save();
@@ -302,8 +310,8 @@ try {
 
              // Define the stages that should trigger a sync
                  const syncStages = [
-                  'Lead',
-                   'Appointment Scheduled',
+                   'New Lead',
+                   'Estimate Booked',
                    'Submitted',
                    'Proposal Viewed',
                    'Awaiting Schedule Date',
@@ -399,7 +407,8 @@ try {
 
 
                 // Step 2: Get the stage name from Leap using the stage ID
-                const leapStageName = leapStageMapping.idToName[notification.stage_moved_to.code] || leapStageMapping.defaultStageId;
+                const leapStageName = leapStageMapping.idToName[notification.stage_moved_to.code] || leapDefaultStage;
+                const leapDivisionName = leapDivisionMapping.nameToId[jobData?.division?.name] || leapDefaultDivision;
           
                 if (!leapStageName) {
                   console.error(`Stage name not found for Leap stage ID: ${notification.stage_moved_to.id}`);
@@ -425,7 +434,7 @@ try {
                     name: jobData.name || 'Unnamed Job',
                     customerId: customer._id,
                     description: jobData.description || '',
-                    pipeline: jobData?.division?.name || '',
+                    pipeline: leapDivisionName,
                     currentStage: leapStageName,
                     createdAt: jobData.created_at,
                     updatedAt: jobData.updated_at,
@@ -446,10 +455,14 @@ try {
                   continue;
                 }
 
+                // Get the pipelineId dynamically from the GHL pipelineMapping
+                   const pipelineId =  await ghlPipelineMapping.nameToId[updatedJob.pipeline] || ghlDefaultPipelineId;
+
+
                   // Sync the job with GHL
                   try {
-                    const mappedOpportunityData = mapJobToGHL(updatedJob, customer);
-                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
+                    const mappedOpportunityData = await mapJobToGHL(updatedJob, customer);
+                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
 
                     updatedJob.ghlJobId = ghlOpportunity.id;
                     updatedJob.synced = true;
@@ -483,10 +496,14 @@ try {
                     console.log(existingCustomer);
   
                     // Map existing job data for GHL
-                    const mappedOpportunityData = mapJobToGHL(updatedJob, existingCustomer);
+                    const mappedOpportunityData = await mapJobToGHL(updatedJob, existingCustomer);
+
+                    
+                // Get the pipelineId dynamically from the GHL pipelineMapping
+                   const pipelineId =  await ghlPipelineMapping.nameToId[updatedJob.pipeline] || ghlDefaultPipelineId;
   
                     // Sync job (opportunity) to GHL
-                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, process.env.GHL_PIPELINE_ID);
+                    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
                     console.log("Opportunity response returned from GHL:");
                     console.log(ghlOpportunity);
   
@@ -530,10 +547,11 @@ try {
                 continue;
               }
 
-                // Step 8: Map Leap stage name to GHL stage ID
-                const ghlStageId = ghlStageMapping.nameToId[leapStageName] || ghlStageMapping.defaultStageId;
+                // Step 8: Map Leap stage name to GHL pipeline stage ID
+                const pipelineStageId = await getPipelineStageId(pipelineId, updatedJob.currentStage);
 
-                if (!ghlStageId) {
+
+                if (!pipelineStageId) {
                   console.error(`GHL stage ID not found for Leap stage: ${leapStageName}`);
                   errorOccurred = true;
                   result = { action: 'jobs', operation: 'invalid_ghl_stage', error: 'Invalid GHL stage mapping' };
@@ -543,7 +561,7 @@ try {
 
                 // Step 9: Sync the updated job stage with GHL
                 try {
-                  await updateOpportunityStageInGHL(updatedJob.ghlJobId, ghlStageId);
+                  await updateOpportunityStageInGHL(updatedJob.ghlJobId, pipelineStageId);
                   console.log(`Job ${notification.id} stage updated in GHL to ${notification.stage_moved_to.name}.`);
 
                   result = {

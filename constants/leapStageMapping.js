@@ -3,8 +3,8 @@
 const leapStageMapping = {
   // Name to ID mapping
   nameToId: {
-    'Lead': '180357123',
-    'Appointment Scheduled': '165531012364911042',
+    'New Lead': '180357123',
+    'Estimate Booked': '165531012364911042',
     'Rep waiting on additional info': '16733634771228637712',
     'Submitted': '335467841',
     'Proposal Viewed': '16572092251817360313',
@@ -26,13 +26,13 @@ const leapStageMapping = {
     'Call Backs': '16402277201884509087',
     'Invoiced': '16103926091526917496',
     'Paid': '161212102',
-    'Disgruntled Customer': '16782833751263202179'
+    'Abandoned': '16782833751263202179'
   },
   
   // ID to Name mapping
   idToName: {
-    '180357123': 'Lead',
-    '165531012364911042': 'Appointment Scheduled',
+    '180357123': 'New Lead',
+    '165531012364911042': 'Estimate Booked',
     '16733634771228637712': 'Rep waiting on additional info',
     '335467841': 'Submitted',
     '16572092251817360313': 'Proposal Viewed',
@@ -54,11 +54,13 @@ const leapStageMapping = {
     '16103926091526917496': 'Invoiced',
     '16402277201884509087': 'Call Backs',
     '161212102': 'Paid',
-    '16782833751263202179': 'Disgruntled Customer'
+    '16782833751263202179': 'Abandoned'
   }
 };
 
 // Default fallback stage ID (e.g., for unknown or unmapped stages)
 const leapDefaultStageId = process.env.LEAP_DEFAULT_STAGE_ID || '180357123';
+const leapDefaultStage = 'New Lead';
 
-module.exports = { leapStageMapping, leapDefaultStageId };
+
+module.exports = { leapStageMapping, leapDefaultStageId, leapDefaultStage };

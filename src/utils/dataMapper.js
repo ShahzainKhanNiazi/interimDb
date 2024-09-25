@@ -1,5 +1,7 @@
+const { ghlPipelineMapping, ghlDefaultPipelineId } = require('../../constants/ghlPipelineMapping');
 const { ghlStageMapping, ghlDefaultStageId } = require('../../constants/ghlStageMapping');  // Import the mapping table
 const {leapStageMapping, leapDefaultStageId} = require('../../constants/leapStageMapping');  // Import the Leap stages mapping table
+const { getPipelineStageId } = require('../helpers/getGhlPipelineStage');
 
 
 // Map MongoDB customer data to Leap customer format
@@ -111,13 +113,14 @@ exports.mapCustomerToGHL = (customer) => {
 
 
 // Map MongoDB job data to GHL opportunity format (for v2 API)
-exports.mapJobToGHL = (job, customer) => {
+exports.mapJobToGHL = async (job, customer) => {
   // Get the pipelineStageId dynamically from the stageMapping
-  const pipelineStageId = ghlStageMapping.nameToId[job.currentStage] || ghlDefaultStageId;
+  const pipelineId =  await ghlPipelineMapping.nameToId[job.pipeline] || ghlDefaultPipelineId;
+  const pipelineStageId = await getPipelineStageId(pipelineId, job.currentStage);
 
   return {
     // Required fields
-    pipelineId: process.env.GHL_PIPELINE_ID,  // Pipeline ID from the environment variables
+    pipelineId: pipelineId,  // Pipeline ID from the environment variables
     locationId: process.env.GHL_LOCATION_ID,  // Location ID for GHL (set in environment)
     pipelineStageId: pipelineStageId,  // ID of the stage in the pipeline
 
