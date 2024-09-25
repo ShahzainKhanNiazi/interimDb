@@ -98,8 +98,8 @@ const ghlStageMapping = {
     "Proposal Viewed": "d604ddc9-e5ac-47bd-8834-0274f55d0895",
     "Awaiting Schedule Date": "51a0035a-7924-489f-a4fc-56e327940124",
     "Work Scheduled": "395b7a2f-e38b-4288-96c0-ad81eb5df5ee",
-    "Call Backs": "63275970-87c5-4092-9b2b-ad4db74820c3",
     "Invoiced": "472a07f9-1ac3-4765-98a5-c4ddac02c156",
+    "Call Backs": "63275970-87c5-4092-9b2b-ad4db74820c3",
     "Paid": "acd01acf-509d-4fb1-a1be-a670374fb2e4",
     "Abandoned": "4a6a65e1-7115-47f8-b4da-0755f65a09d0"
   }
