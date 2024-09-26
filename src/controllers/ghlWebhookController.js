@@ -104,38 +104,38 @@ const handleOpportunityWebhook = async (req, res) => {
       console.log("this is the contact fetched from GHL");
       console.log(fetchedCustomer);
 
-      customer = new Customer({
-        ghlCustomerId: fetchedCustomer.id,
-        firstName: fetchedCustomer.firstName,
-        lastName: fetchedCustomer.lastName,
-        email: fetchedCustomer.email,
-        phone: fetchedCustomer.phone,
-        address: {
-          addressLine: fetchedCustomer.address1 || '',
-          city: fetchedCustomer.city || '',
-          state: fetchedCustomer.state || '',
-          postalCode: fetchedCustomer.postalCode || ''
-        },
-        companyName: fetchedCustomer.companyName || '',
-        customerRep: fetchedCustomer.assignedTo || '',
-        notes: '',
-        source: 'GHL',
-        synced: false  // Not synced with Leap yet
-      });
-      await customer.save();
-      console.log(`Customer ${contactId} created and saved in MongoDB.`);
+      // customer = new Customer({
+      //   ghlCustomerId: fetchedCustomer.id,
+      //   firstName: fetchedCustomer.firstName,
+      //   lastName: fetchedCustomer.lastName,
+      //   email: fetchedCustomer.email,
+      //   phone: fetchedCustomer.phone,
+      //   address: {
+      //     addressLine: fetchedCustomer.address1 || '',
+      //     city: fetchedCustomer.city || '',
+      //     state: fetchedCustomer.state || '',
+      //     postalCode: fetchedCustomer.postalCode || ''
+      //   },
+      //   companyName: fetchedCustomer.companyName || '',
+      //   customerRep: fetchedCustomer.assignedTo || '',
+      //   notes: '',
+      //   source: 'GHL',
+      //   synced: false  // Not synced with Leap yet
+      // });
+      // await customer.save();
+      // console.log(`Customer ${contactId} created and saved in MongoDB.`);
     }
 
     // Sync customer with Leap if not already synced
     if (!customer.synced) {
       console.log(`Customer ${customer.ghlCustomerId} not synced with Leap. Syncing now...`);
 
-      const mappedCustomerData = mapCustomerToLeap(customer);  // Map customer to Leap's format
-      const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
-      customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
-      customer.synced = true;
-      await customer.save();
-      console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
+      // const mappedCustomerData = mapCustomerToLeap(customer);  // Map customer to Leap's format
+      // const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
+      // customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
+      // customer.synced = true;
+      // await customer.save();
+      // console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
     }
 
     if (existingJob) {
@@ -153,39 +153,49 @@ const handleOpportunityWebhook = async (req, res) => {
 
       const pipelineName =  await ghlPipelineMapping.idToName[pipelineId] || ghlDefaultPipeline;
       const stageName = await getPipelineStageName(pipelineId, pipelineStageId);
+
+      console.log("this is the GHL pipeline name");
+      console.log(pipelineName);
+      console.log("this is the GHL pipeline stage name");
+      console.log(stageName);
       
 
       // Create new job record in MongoDB
-      existingJob = new Job({
-        ghlJobId: ghlOpportunityId,
-        name: name || 'Unnamed Job',
-        customerId: customer._id,  // Link the associated customer from MongoDB
-        pipeline: pipelineName,  // Use the pipeline ID from GHL or set a default
-        currentStage: stageName ,  // Use the pipeline stage name from GHL or default
-        status: opportunityData.status,
-        createdAt: opportunityData.dateAdded,
-        synced: false
-      });
+      // existingJob = new Job({
+      //   ghlJobId: ghlOpportunityId,
+      //   name: name || 'Unnamed Job',
+      //   customerId: customer._id,  // Link the associated customer from MongoDB
+      //   pipeline: pipelineName,  // Use the pipeline ID from GHL or set a default
+      //   currentStage: stageName ,  // Use the pipeline stage name from GHL or default
+      //   status: opportunityData.status,
+      //   createdAt: opportunityData.dateAdded,
+      //   synced: false
+      // });
 
-      await existingJob.save();
-      console.log(`Job ${ghlOpportunityId} saved to MongoDB.`);
+      // await existingJob.save();
+      // console.log(`Job ${ghlOpportunityId} saved to MongoDB.`);
     }
 
     // Step 3: Map the opportunity data for Leap and store it in MongoDB
     const mappedJobData = mapJobToLeap(existingJob, customer);  // Mapping GHL job data to Leap format
+    console.log("this is the mapped job data");
+    console.log(mappedJobData)
 
     // Step 4: Sync the job (opportunity) with Leap
-    try {
-      const leapJob = await syncOpportunityToLeap(mappedJobData);
-      existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
-      existingJob.synced = true;
-      await existingJob.save();
-      console.log(`Job ${ghlOpportunityId} successfully synced with Leap and updated in MongoDB.`);
-      res.status(200).send('Job synced with Leap');
-    } catch (error) {
-      console.error(`Error syncing job with Leap: ${error.message}`);
-      res.status(500).send('Failed to sync job with Leap');
-    }
+    // try {
+    //   const leapJob = await syncOpportunityToLeap(mappedJobData);
+    //   existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
+    //   existingJob.synced = true;
+    //   await existingJob.save();
+    //   console.log(`Job ${ghlOpportunityId} successfully synced with Leap and updated in MongoDB.`);
+    //   res.status(200).send('Job synced with Leap');
+    // } catch (error) {
+    //   console.error(`Error syncing job with Leap: ${error.message}`);
+    //   res.status(500).send('Failed to sync job with Leap');
+    // }
+
+    res.status(200).send('Opportunity received from GHL');
+
 
   } catch (error) {
     console.error('Error handling GHL opportunity webhook:', error);
