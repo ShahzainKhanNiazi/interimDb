@@ -138,7 +138,7 @@ const handleOpportunityWebhook = async (req, res) => {
     }
 
     // Sync customer with Leap if not already synced
-    if (!customer.synced) {
+    if (!customer?.synced) {
       console.log(`Customer ${customer.ghlCustomerId} not synced with Leap. Syncing now...`);
 
       // const mappedCustomerData = mapCustomerToLeap(customer);  // Map customer to Leap's format
