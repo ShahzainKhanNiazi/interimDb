@@ -92,7 +92,7 @@ const handleOpportunityWebhook = async (req, res) => {
     // Extract necessary fields from the opportunity data
     // const { id: ghlOpportunityId, contactId, name, pipelineId, pipelineStageId } = opportunityData;
 
-    const { id: ghlOpportunityId, contact_id, opportunity_name, pipeline_id: pipelineId, pipleline_stage: pipelineStageName, pipeline_name } = opportunityData;
+    const { id: ghlOpportunityId, contact_id, opportunity_name, user, owner, pipeline_id: pipelineId, pipleline_stage: pipelineStageName, pipeline_name } = opportunityData;
 
 
     console.log("this is the opportunity_id from GHL");
@@ -166,16 +166,21 @@ const handleOpportunityWebhook = async (req, res) => {
       const stageName = await getPipelineStageId(pipelineId, pipelineStageName);
       
 
-      console.log("this is the opportunity name from GHL");
-      console.log(opportunity_name);
-      console.log("this is the pipeline name from GHL");
-      console.log(pipeline_name);
-      console.log("this is the GHL pipeline name in the code");
-      console.log(pipelineName);
-      console.log("this is the GHL pipeline stage Name");
-      console.log(pipelineStageName);
-      console.log("this is the GHL pipeline stage Id");
-      console.log(stageName);
+      console.log("this is the user with the opportunity");
+      console.log(user);
+      console.log("this is the owner of the opportunity");
+      console.log(owner)
+
+      // console.log("this is the opportunity name from GHL");
+      // console.log(opportunity_name);
+      // console.log("this is the pipeline name from GHL");
+      // console.log(pipeline_name);
+      // console.log("this is the GHL pipeline name in the code");
+      // console.log(pipelineName);
+      // console.log("this is the GHL pipeline stage Name");
+      // console.log(pipelineStageName);
+      // console.log("this is the GHL pipeline stage Id");
+      // console.log(stageName);
       
 
       // Create new job record in MongoDB
