@@ -195,9 +195,9 @@ const handleOpportunityWebhook = async (req, res) => {
     }
 
     // Step 3: Map the opportunity data for Leap and store it in MongoDB
-    const mappedJobData = mapJobToLeap(existingJob, customer);  // Mapping GHL job data to Leap format
-    console.log("this is the mapped job data");
-    console.log(mappedJobData)
+    // const mappedJobData = mapJobToLeap(existingJob, customer);  // Mapping GHL job data to Leap format
+    // console.log("this is the mapped job data");
+    // console.log(mappedJobData)
 
     // Step 4: Sync the job (opportunity) with Leap
     // try {
