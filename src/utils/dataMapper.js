@@ -5,7 +5,7 @@ const { getPipelineStageId } = require('../helpers/getGhlPipelineStage');
 
 
 // Map MongoDB customer data to Leap customer format
-exports.mapCustomerToLeap = (customer) => {
+exports.mapCustomerToLeap = async (customer) => {
     return {
       first_name: customer.firstName,
       last_name: customer.lastName,
@@ -42,19 +42,11 @@ exports.mapJobToLeap = (job, customer) => {
   return {
     customer_id: customer.leapCustomerId,  // Use Leap-specific customer ID
     name: job.name || 'Unnamed Job',  
-    description: job.description || '',  
+    description: job.description || `This is a GoHighLevel job assigned to ${job.assignedTo} in GoHighLevel`,  
     call_required: job.callRequired || 0,  
     appointment_required: job.appointmentRequired || 0, 
-    same_as_customer_address: job.sameAsCustomerAddress || 1,  
-    address: job.address?.addressLine || customer.address?.addressLine || '',  
-    city: job.address?.city || customer.address?.city || '',
-    state_id: job.address?.state_id || customer.address?.state_id || null,
-    country_id: job.address?.country_id || customer.address?.country_id || 1,
-    zip: job.address?.postalCode || customer.address?.postalCode || '',
-    duration: job.duration || '0:0:0',  
-    trades: [defaultTradeId],  
-    rep_ids: job.repIds || [], 
-    estimator_ids: job.estimatorIds || [] 
+    same_as_customer_address: 1,  
+    trades: [defaultTradeId],
   };
 };
 

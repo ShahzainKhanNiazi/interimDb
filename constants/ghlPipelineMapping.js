@@ -20,5 +20,7 @@ const ghlPipelineMapping = {
 
 // Default fallback stage ID (e.g., for unknown or unmapped stages)
 const ghlDefaultPipelineId = process.env.GHL_DEFAULT_PIPELINE_ID;
+const ghlDefaultPipeline = "Roofing";
 
-module.exports = { ghlPipelineMapping, ghlDefaultPipelineId };
+
+module.exports = { ghlPipelineMapping, ghlDefaultPipelineId, ghlDefaultPipeline };

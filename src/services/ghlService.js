@@ -29,6 +29,29 @@ const ghlRequest = async (method, url, data = {}) => {
   }
 };
 
+const fetchContactFromGHL = async (contactId) => {
+  const url = `/contacts/${contactId}`; // Endpoint for fetching a contact
+
+  try {
+    // Use the ghlRequest helper to make the API request
+    const response = await ghlRequest('GET', url);
+    
+    // Log the fetched contact data for debugging purposes
+    console.log(`Fetched contact from GHL with ID: ${contactId}`, response);
+
+    // Return the contact object from the response
+    return response.contact;
+  } catch (error) {
+    console.error(`Error fetching contact with ID: ${contactId} from GHL`, error.message);
+    throw new ApiError(
+      error.response?.status || 500,
+      `Failed to fetch contact with ID: ${contactId} from GHL`,
+      error.response?.data || error.message
+    );
+  }
+};
+
+
 // // Sync customer (contact) to GHL (already mapped data)
 // const syncCustomerToGHL = async (customerData) => {
 //   try {
@@ -121,4 +144,5 @@ module.exports = {
   syncCustomerToGHL,
   syncOpportunityToGHL,
   updateOpportunityStageInGHL,
+  fetchContactFromGHL,
 };

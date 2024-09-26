@@ -4,37 +4,187 @@ const Customer = require('../models/Customer');
 const Job = require('../models/Job');
 const { ghlDefaultStageId, ghlStageMapping } = require('../../constants/ghlStageMapping');
 const { leapStageMapping, leapDefaultStageId } = require('../../constants/leapStageMapping');
+const { fetchContactFromGHL } = require('../services/ghlService');
+const { ghlPipelineMapping, ghlDefaultPipeline } = require('../../constants/ghlPipelineMapping');
+const { getPipelineStageName } = require('../helpers/getGhlPipelineStage');
+
 
 // Handle GHL customer (contact) webhook
-const handleCustomerWebhook = async (req, res) => {
+const handleContactWebhook = async (req, res) => {
   try {
     const customerData = req.body;  // GHL webhook payload for customer
     console.log('Received GHL customer webhook:', customerData);
 
-    // Assuming customerData has an id and other relevant fields
-    console.log(`GHL Customer created with ID: ${customerData.id}`);
-    // Add your logic to handle customer creation here
+    // Check if the customer already exists in MongoDB
+    let existingCustomer = await Customer.findOne({ ghlCustomerId: customerData.id });
 
-    // Respond with 200 OK to acknowledge receipt
-    res.status(200).send('Customer webhook received');
+    if (existingCustomer) {
+      console.log(`Customer with GHL ID ${customerData.id} already exists in MongoDB.`);
+      
+      // Check if the customer is already synced with Leap
+      if (existingCustomer.synced) {
+        console.log(`Customer ${customerData.id} is already synced with Leap. Skipping sync.`);
+        return res.status(200).send('Customer already synced');
+      }
+    } else {
+      // If customer is not in MongoDB, store it
+      console.log(`Customer not found in MongoDB. Saving new customer.`);
+
+      existingCustomer = new Customer({
+        ghlCustomerId: customerData.id,
+        firstName: customerData.firstName,
+        lastName: customerData.lastName,
+        email: customerData.email,
+        phone: customerData.phone,
+        address: {
+          addressLine: customerData.address1 || '',
+          city: customerData.city || '',
+          state: customerData.state || '',
+          postalCode: customerData.postalCode || ''
+        },
+        companyName: customerData.companyName || '',
+        customerRep: customerData.assignedTo || '',
+        notes: '',
+        source: 'GHL',
+        synced: false  // Not synced yet with Leap
+      });
+
+      // Save the customer to MongoDB
+      await existingCustomer.save();
+      console.log(`GHL Contact ${customerData.id} saved to MongoDB.`);
+    }
+
+    // Map the customer data to Leap's format
+    const mappedCustomerData = await mapCustomerToLeap(existingCustomer);
+
+    // Sync the customer with Leap
+    try {
+      const leapResponse = await syncCustomerToLeap(mappedCustomerData);
+      console.log('Customer successfully synced with Leap:', leapResponse);
+
+      // Update the MongoDB record with Leap customer ID and mark as synced
+      existingCustomer.leapCustomerId = leapResponse.customer.id;;  // Assuming Leap returns customerId
+      existingCustomer.synced = true;
+      await existingCustomer.save();
+
+      console.log(`Customer ${existingCustomer.ghlCustomerId} synced and updated in MongoDB.`);
+      res.status(200).send('Customer synced with Leap');
+    } catch (error) {
+      console.error('Error syncing customer with Leap:', error);
+      res.status(500).send('Failed to sync customer with Leap');
+    }
+
   } catch (error) {
     console.error('Error handling GHL customer webhook:', error);
     res.status(500).send('Error handling customer webhook');
   }
 };
 
+
+
 // Handle GHL opportunity (job) webhook
-const handleJobWebhook = async (req, res) => {
+const handleOpportunityWebhook = async (req, res) => {
   try {
     const opportunityData = req.body;  // GHL webhook payload for opportunity
     console.log('Received GHL opportunity webhook:', opportunityData);
 
-    // Assuming opportunityData has an id and other relevant fields
-    console.log(`GHL Opportunity created with ID: ${opportunityData.id}`);
-    // Add your logic to handle job creation here
+    // Extract necessary fields from the opportunity data
+    const { id: ghlOpportunityId, contactId, name, pipelineId, pipelineStageId } = opportunityData;
 
-    // Respond with 200 OK to acknowledge receipt
-    res.status(200).send('Opportunity webhook received');
+    // Step 1: Check if the job (opportunity) already exists in MongoDB
+    let existingJob = await Job.findOne({ ghlJobId: ghlOpportunityId });
+
+    // Step 2: Ensure the associated contact (customer) is synced first
+    let customer = await Customer.findOne({ ghlCustomerId: contactId });
+
+    if (!customer) {
+      console.log(`Customer with GHL ID ${contactId} not found in MongoDB. Fetching from GHL...`);
+      // Fetch customer details from GHL and store in MongoDB
+      const fetchedCustomer = await fetchContactFromGHL(contactId);  // Fetch customer data from GHL API
+
+      customer = new Customer({
+        ghlCustomerId: fetchedCustomer.id,
+        firstName: fetchedCustomer.firstName,
+        lastName: fetchedCustomer.lastName,
+        email: fetchedCustomer.email,
+        phone: fetchedCustomer.phone,
+        address: {
+          addressLine: fetchedCustomer.address1 || '',
+          city: fetchedCustomer.city || '',
+          state: fetchedCustomer.state || '',
+          postalCode: fetchedCustomer.postalCode || ''
+        },
+        companyName: fetchedCustomer.companyName || '',
+        customerRep: fetchedCustomer.assignedTo || '',
+        notes: '',
+        source: 'GHL',
+        synced: false  // Not synced with Leap yet
+      });
+      await customer.save();
+      console.log(`Customer ${contactId} created and saved in MongoDB.`);
+    }
+
+    // Sync customer with Leap if not already synced
+    if (!customer.synced) {
+      console.log(`Customer ${customer.ghlCustomerId} not synced with Leap. Syncing now...`);
+
+      const mappedCustomerData = mapCustomerToLeap(customer);  // Map customer to Leap's format
+      const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
+      customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
+      customer.synced = true;
+      await customer.save();
+      console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
+    }
+
+    if (existingJob) {
+      console.log(`Job with GHL Opportunity ID ${ghlOpportunityId} already exists in MongoDB.`);
+
+      // If the job is already synced, skip further processing
+      if (existingJob.synced) {
+        console.log(`Job ${ghlOpportunityId} is already synced with Leap. Skipping sync.`);
+        return res.status(200).send('Job already synced');
+      }
+    } else {
+      console.log(`Job not found in MongoDB. Creating a new job record.`);
+
+
+
+      const pipelineName =  await ghlPipelineMapping.idToName[pipelineId] || ghlDefaultPipeline;
+      const stageName = await getPipelineStageName(pipelineId, pipelineStageId);
+      
+
+      // Create new job record in MongoDB
+      existingJob = new Job({
+        ghlJobId: ghlOpportunityId,
+        name: name || 'Unnamed Job',
+        customerId: customer._id,  // Link the associated customer from MongoDB
+        pipeline: pipelineName,  // Use the pipeline ID from GHL or set a default
+        currentStage: stageName ,  // Use the pipeline stage name from GHL or default
+        status: opportunityData.status,
+        createdAt: opportunityData.dateAdded,
+        synced: false
+      });
+
+      await existingJob.save();
+      console.log(`Job ${ghlOpportunityId} saved to MongoDB.`);
+    }
+
+    // Step 3: Map the opportunity data for Leap and store it in MongoDB
+    const mappedJobData = mapJobToLeap(existingJob, customer);  // Mapping GHL job data to Leap format
+
+    // Step 4: Sync the job (opportunity) with Leap
+    try {
+      const leapJob = await syncOpportunityToLeap(mappedJobData);
+      existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
+      existingJob.synced = true;
+      await existingJob.save();
+      console.log(`Job ${ghlOpportunityId} successfully synced with Leap and updated in MongoDB.`);
+      res.status(200).send('Job synced with Leap');
+    } catch (error) {
+      console.error(`Error syncing job with Leap: ${error.message}`);
+      res.status(500).send('Failed to sync job with Leap');
+    }
+
   } catch (error) {
     console.error('Error handling GHL opportunity webhook:', error);
     res.status(500).send('Error handling opportunity webhook');
@@ -150,7 +300,7 @@ const handleStageChangeWebhook = async (req, res) => {
 
 
 module.exports = {
-  handleCustomerWebhook,
-  handleJobWebhook,
+  handleContactWebhook,
+  handleOpportunityWebhook,
   handleStageChangeWebhook
 };

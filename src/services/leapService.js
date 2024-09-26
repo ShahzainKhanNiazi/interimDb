@@ -26,6 +26,20 @@ const fetchData = async (url, retries = 3, backoff = 1500) => {
   }
 };
 
+const fetchCustomerById = async (customerId) => {
+  try {
+    const response = await axios.get(`${process.env.LEAP_API_URL}/customers/${customerId}?includes[]=phones&includes[]=address&includes[]=rep`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.LEAP_API_TOKEN}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching customer from Leap:', error);
+    throw new ApiError(error.response?.status || 500, 'Error fetching customer from Leap', error.response?.data || error.message);
+  }
+};
+
 
 const fetchJobById = async (jobId) => {
   try {
@@ -38,20 +52,6 @@ const fetchJobById = async (jobId) => {
   } catch (error) {
     console.error('Error fetching job from Leap:', error);
     throw new ApiError(error.response?.status || 500, 'Error fetching job from Leap', error.response?.data || error.message);
-  }
-};
-
-const fetchCustomerById = async (customerId) => {
-  try {
-    const response = await axios.get(`${process.env.LEAP_API_URL}/customers/${customerId}?includes[]=phones&includes[]=address&includes[]=rep`, {
-      headers: {
-        'Authorization': `Bearer ${process.env.LEAP_API_TOKEN}`
-      }
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching customer from Leap:', error);
-    throw new ApiError(error.response?.status || 500, 'Error fetching customer from Leap', error.response?.data || error.message);
   }
 };
 
