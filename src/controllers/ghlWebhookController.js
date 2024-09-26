@@ -6,7 +6,7 @@ const { ghlDefaultStageId, ghlStageMapping } = require('../../constants/ghlStage
 const { leapStageMapping, leapDefaultStageId } = require('../../constants/leapStageMapping');
 const { fetchContactFromGHL } = require('../services/ghlService');
 const { ghlPipelineMapping, ghlDefaultPipeline } = require('../../constants/ghlPipelineMapping');
-const { getPipelineStageName } = require('../helpers/getGhlPipelineStage');
+const { getPipelineStageName, getPipelineStageId } = require('../helpers/getGhlPipelineStage');
 
 
 // Handle GHL customer (contact) webhook
@@ -90,18 +90,28 @@ const handleOpportunityWebhook = async (req, res) => {
     console.log(opportunityData);
 
     // Extract necessary fields from the opportunity data
-    const { id: ghlOpportunityId, contactId, name, pipelineId, pipelineStageId } = opportunityData;
+    // const { id: ghlOpportunityId, contactId, name, pipelineId, pipelineStageId } = opportunityData;
 
+    const { id: ghlOpportunityId, contact_id, opportunity_name, pipeline_id: pipelineId, pipleline_stage: pipelineStageName, pipeline_name } = opportunityData;
+
+
+    console.log("this is the opportunity_id from GHL");
+      console.log(ghlOpportunityId);
     // Step 1: Check if the job (opportunity) already exists in MongoDB
     let existingJob = await Job.findOne({ ghlJobId: ghlOpportunityId });
 
     // Step 2: Ensure the associated contact (customer) is synced first
-    let customer = await Customer.findOne({ ghlCustomerId: contactId });
+    let customer = await Customer.findOne({ ghlCustomerId: contact_id });
+
+    if(customer){
+      console.log("this is the customer found in MongoDB");
+      console.log(customer);
+    }
 
     if (!customer) {
       console.log(`Customer with GHL ID ${contactId} not found in MongoDB. Fetching from GHL...`);
       // Fetch customer details from GHL and store in MongoDB
-      const fetchedCustomer = await fetchContactFromGHL(contactId);  // Fetch customer data from GHL API
+      const fetchedCustomer = await fetchContactFromGHL(contact_id);  // Fetch customer data from GHL API
       console.log("this is the contact fetched from GHL");
       console.log(fetchedCustomer);
 
@@ -152,12 +162,19 @@ const handleOpportunityWebhook = async (req, res) => {
 
 
 
-      const pipelineName =  await ghlPipelineMapping.idToName[pipelineId] || ghlDefaultPipeline;
-      const stageName = await getPipelineStageName(pipelineId, pipelineStageId);
+      const pipelineName =  await ghlPipelineMapping.idToName[pipelineId];
+      const stageName = await getPipelineStageId(pipelineId, pipelineStageName);
+      
 
-      console.log("this is the GHL pipeline name");
+      console.log("this is the opportunity name from GHL");
+      console.log(opportunity_name);
+      console.log("this is the pipeline name from GHL");
+      console.log(pipeline_name);
+      console.log("this is the GHL pipeline name in the code");
       console.log(pipelineName);
-      console.log("this is the GHL pipeline stage name");
+      console.log("this is the GHL pipeline stage Name");
+      console.log(pipelineStageName);
+      console.log("this is the GHL pipeline stage Id");
       console.log(stageName);
       
 
