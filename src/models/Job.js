@@ -5,7 +5,6 @@ const jobSchema = new mongoose.Schema({
   leapJobId: { type: String },  // Leap job ID
   ghlJobId: { type: String },   // GHL opportunity ID
 
-  
   // Job/Opportunity Name
   name: { type: String, required: false },
 
@@ -16,7 +15,7 @@ const jobSchema = new mongoose.Schema({
   description: { type: String, required: true },
 
   // Information about the pipeline or stage
-  pipeline: { type: String, required: false },  // GHL pipelineId or Leap division
+  pipeline: { type: String, required: false },  // GHL pipeline Name or Leap division
   currentStage: { type: String, required: false },  // Stage name or ID from both CRMs
 
   // Job creation and update timestamps from both CRMs

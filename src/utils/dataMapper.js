@@ -42,7 +42,7 @@ exports.mapJobToLeap = (job, customer) => {
   return {
     customer_id: customer.leapCustomerId,  // Use Leap-specific customer ID
     name: job.name || 'Unnamed Job',  
-    description: job.description || `This is a GoHighLevel job assigned to ${job.assignedTo} in GoHighLevel`,  
+    description: job.description,  
     call_required: job.callRequired || 0,  
     appointment_required: job.appointmentRequired || 0, 
     same_as_customer_address: 1,  
