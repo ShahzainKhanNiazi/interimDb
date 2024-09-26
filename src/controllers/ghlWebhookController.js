@@ -139,7 +139,7 @@ const handleOpportunityWebhook = async (req, res) => {
 
     // Sync customer with Leap if not already synced
     if (!customer?.synced) {
-      console.log(`Customer ${customer.ghlCustomerId} not synced with Leap. Syncing now...`);
+      console.log(`Customer ${customer?.ghlCustomerId} not synced with Leap. Syncing now...`);
 
       // const mappedCustomerData = mapCustomerToLeap(customer);  // Map customer to Leap's format
       // const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
@@ -153,7 +153,7 @@ const handleOpportunityWebhook = async (req, res) => {
       console.log(`Job with GHL Opportunity ID ${ghlOpportunityId} already exists in MongoDB.`);
 
       // If the job is already synced, skip further processing
-      if (existingJob.synced) {
+      if (existingJob?.synced) {
         console.log(`Job ${ghlOpportunityId} is already synced with Leap. Skipping sync.`);
         return res.status(200).send('Job already synced');
       }
