@@ -173,6 +173,7 @@ const handleOpportunityWebhook = async (req, res) => {
 
     if (existingJob) {
       console.log(`Job with GHL Opportunity ID ${jobData.ghlJobId} already exists in MongoDB.`);
+      console.log(existingJob);
 
       // If the job is already synced, skip further processing
       if (existingJob?.synced) {
