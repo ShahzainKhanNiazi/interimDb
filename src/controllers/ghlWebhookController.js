@@ -86,7 +86,8 @@ const handleContactWebhook = async (req, res) => {
 const handleOpportunityWebhook = async (req, res) => {
   try {
     const opportunityData = req.body;  // GHL webhook payload for opportunity
-    console.log('Received GHL opportunity webhook:', opportunityData);
+    console.log('Received GHL opportunity webhook:');
+    console.log(opportunityData);
 
     // Extract necessary fields from the opportunity data
     const { id: ghlOpportunityId, contactId, name, pipelineId, pipelineStageId } = opportunityData;
