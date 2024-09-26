@@ -109,7 +109,7 @@ const handleOpportunityWebhook = async (req, res) => {
     }
 
     if (!customer) {
-      console.log(`Customer with GHL ID ${contactId} not found in MongoDB. Fetching from GHL...`);
+      console.log(`Customer with GHL ID ${contact_id} not found in MongoDB. Fetching from GHL...`);
       // Fetch customer details from GHL and store in MongoDB
       const fetchedCustomer = await fetchContactFromGHL(contact_id);  // Fetch customer data from GHL API
       console.log("this is the contact fetched from GHL");
