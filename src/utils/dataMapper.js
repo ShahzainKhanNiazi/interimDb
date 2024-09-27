@@ -7,26 +7,20 @@ const { getPipelineStageId } = require('../helpers/getGhlPipelineStage');
 // Map MongoDB customer data to Leap customer format
 exports.mapCustomerToLeap = async (customer) => {
     return {
-      first_name: customer.firstName,
-      last_name: customer.lastName,
-      email: customer.email,
-      phones: [
-        {
-          label: 'cell',  
-          number: customer.phone
-        }
-      ],
-      address: {
-        address: customer.address.addressLine || '',  
-        city: customer.address.city || '',
-        state_id: 38,  
-        country_id: 1, 
-        zip: customer.address.postalCode || ''
-      },
-      company_name: customer.companyName || '',  
-      is_commercial: false, 
-      call_required:  false, 
-      appointment_required:  false,    
+      'first_name': customer.firstName,
+      'last_name': customer.lastName,
+      'email': customer.email,
+      'phones[0][label]':  'primary',
+      'phones[0][number]': customer.phone,
+      'address[address]': customer.address.addressLine,
+      'address[city]': customer.address.city,
+      'address[state_id]': '3',
+      'address[country_id]': "1",
+      'address[zip]': customer.address.postalCode,
+      'company_name': customer.companyName || '',  
+      'is_commercial': false, 
+      'call_required':  false, 
+      'appointment_required':  false,    
     };
   };
 
@@ -39,13 +33,13 @@ exports.mapJobToLeap = (job, customer) => {
 
 
   return {
-    customer_id: customer.leapCustomerId,  // Use Leap-specific customer ID
-    name: job.name || 'Unnamed Job',  
-    description: job.description,  
-    call_required: 0,  
-    appointment_required: 0, 
-    same_as_customer_address: 1,  
-    trades: [defaultTradeId],
+    'customer_id': customer.leapCustomerId,  // Use Leap-specific customer ID
+    'name': job.name || 'Unnamed Job',  
+    'description': job.description,  
+    'call_required': '0',  
+    'appointment_required': '0', 
+    'same_as_customer_address': '1',  
+    'trades': [defaultTradeId],
   };
 };
 
