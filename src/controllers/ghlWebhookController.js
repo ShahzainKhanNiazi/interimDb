@@ -164,11 +164,11 @@ const handleOpportunityWebhook = async (req, res) => {
       const mappedCustomerData = await mapCustomerToLeap(customer);  // Map customer to Leap's format
       console.log("this is the mapped customer for leap");
       console.log(mappedCustomerData);
-      // const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
-      // customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
-      // customer.synced = true;
-      // await customer.save();
-      // console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
+      const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
+      customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
+      customer.synced = true;
+      await customer.save();
+      console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
     }
 
     if (existingJob) {
@@ -214,17 +214,17 @@ const handleOpportunityWebhook = async (req, res) => {
     console.log('Mapped Job Data:', mappedJobData);
 
     // Step 4: Sync the job (opportunity) with Leap
-    // try {
-    //   const leapJob = await syncOpportunityToLeap(mappedJobData);
-    //   existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
-    //   existingJob.synced = true;
-    //   await existingJob.save();
-    //   console.log(`Job ${jobData.ghlJobId} successfully synced with Leap and updated in MongoDB.`);
+    try {
+      const leapJob = await syncOpportunityToLeap(mappedJobData);
+      existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
+      existingJob.synced = true;
+      await existingJob.save();
+      console.log(`Job ${jobData.ghlJobId} successfully synced with Leap and updated in MongoDB.`);
       res.status(200).send('Job synced with Leap');
-    // } catch (error) {
-    //   console.error(`Error syncing job with Leap: ${error.message}`);
-    //   res.status(500).send('Failed to sync job with Leap');
-    // }
+    } catch (error) {
+      console.error(`Error syncing job with Leap: ${error.message}`);
+      res.status(500).send('Failed to sync job with Leap');
+    }
   } catch (error) {
     console.error('Error handling GHL opportunity webhook:', error);
     res.status(500).send('Error handling opportunity webhook');
