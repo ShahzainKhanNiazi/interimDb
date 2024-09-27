@@ -94,7 +94,8 @@ const handleOpportunityWebhook = async (req, res) => {
       firstName: opportunityData.first_name,
       lastName: opportunityData.last_name,
       email: opportunityData.email,
-      phone: opportunityData.phone,
+      // Remove the '+' sign from the phone number if it exists
+      phone: opportunityData.phone ? opportunityData.phone.replace('+', '') : '',
       address: {
         addressLine: opportunityData.address1,
         city: opportunityData.city,
