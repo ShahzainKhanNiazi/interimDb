@@ -119,8 +119,8 @@ const handleOpportunityWebhook = async (req, res) => {
       source: opportunityData.opportunity_source || 'GHL',
     };
 
-    console.log('Contact Data:', contactData);
-    console.log('Opportunity Data:', jobData);
+    // console.log('Contact Data:', contactData);
+    // console.log('Opportunity Data:', jobData);
 
     // Step 1: Check if the job (opportunity) already exists in MongoDB
     let existingJob = await Job.findOne({ ghlJobId: jobData?.ghlJobId });
@@ -129,7 +129,7 @@ const handleOpportunityWebhook = async (req, res) => {
     let customer = await Customer.findOne({ ghlCustomerId: contactData?.contactId });
 
     if (customer) {
-      console.log('Customer found in MongoDB:', customer);
+      // console.log('Customer found in MongoDB:', customer);
     } else {
       console.log(`Customer with GHL ID ${contactData.contactId} not found in MongoDB. Creating new customer record.`);
 
@@ -182,7 +182,7 @@ const handleOpportunityWebhook = async (req, res) => {
 
     if (existingJob) {
       console.log(`Job with GHL Opportunity ID ${jobData.ghlJobId} already exists in MongoDB.`);
-      console.log(existingJob);
+      // console.log(existingJob);
 
       // If the job is already synced, skip further processing
       if (existingJob?.synced) {

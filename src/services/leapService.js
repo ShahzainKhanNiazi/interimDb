@@ -81,24 +81,74 @@ const fetchAllCustomers = async (limit = 5, page = 1) => {
 // Service methods for syncing GHL data to Leap
 
 // Sync customer (contact) to Leap
+// const syncCustomerToLeap = async (customerData) => {
+//   try {
+//     console.log("this is the customer to be synced with Leap");
+//     console.log(customerData);
+//     const data = qs.stringify(customerData);  // URL-encoded format for Leap API
+//     const response = await axios.post(`${process.env.LEAP_API_URL}/customers`, data, {
+//       headers: {
+//         Authorization: `Bearer ${process.env.LEAP_API_TOKEN}`,
+//         'Content-Type': 'application/x-www-form-urlencoded',
+//       },
+//     });
+//     console.log('Customer synced to Leap:', response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error syncing customer to Leap:', error);
+//     throw new ApiError(error.response?.status || 500, 'Error syncing customer to Leap', error.response?.data || error.message);
+//   }
+// };
+
+// Sync customer (contact) to Leap
 const syncCustomerToLeap = async (customerData) => {
   try {
-    console.log("this is the customer to be synced with Leap");
-    console.log(customerData);
+    console.log("This is the customer data being sent to Leap:", customerData);
+    
     const data = qs.stringify(customerData);  // URL-encoded format for Leap API
+    
+    // Log the URL-encoded data being sent
+    console.log("This is the URL-encoded data being sent to Leap:", data);
+    
     const response = await axios.post(`${process.env.LEAP_API_URL}/customers`, data, {
       headers: {
         Authorization: `Bearer ${process.env.LEAP_API_TOKEN}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
+
     console.log('Customer synced to Leap:', response.data);
     return response.data;
+
   } catch (error) {
-    console.error('Error syncing customer to Leap:', error);
-    throw new ApiError(error.response?.status || 500, 'Error syncing customer to Leap', error.response?.data || error.message);
+    console.error('Error syncing customer to Leap:');
+    
+    // Log the entire error object for debugging
+    console.error('Error Object:', error);
+    
+    // Check and log specific parts of the error object
+    if (error.response) {
+      console.error('Status Code:', error.response.status); // Log the status code
+      console.error('Response Headers:', error.response.headers); // Log the response headers
+      console.error('Error Data:', error.response.data); // Log the response data
+      console.error('Request Data:', error.config.data); // Log the data sent in the request
+    } else {
+      console.error('No response received from Leap API');
+    }
+
+    // Log more details on the error config
+    console.error('Error Config:', error.config);
+    
+    // Re-throw a custom error with detailed message and response data if available
+    throw new ApiError(
+      error.response?.status || 500, 
+      'Error syncing customer to Leap', 
+      error.response?.data || error.message
+    );
   }
 };
+
+
 
 // Sync job (opportunity) to Leap
 const syncJobToLeap = async (jobData) => {
