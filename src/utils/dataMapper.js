@@ -25,8 +25,8 @@ exports.mapCustomerToLeap = async (customer) => {
       },
       company_name: customer.companyName || '',  
       is_commercial: 0, 
-      call_required:  0, 
-      appointment_required:  0,    
+      call_required:  false, 
+      appointment_required:  false,    
     };
   };
 
