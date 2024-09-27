@@ -10,7 +10,7 @@ exports.mapCustomerToLeap = async (customer) => {
       'first_name': customer.firstName,
       'last_name': customer.lastName,
       'email': customer.email,
-      'phones[0][label]':  'primary',
+      'phones[0][label]':  'cell',
       'phones[0][number]': customer.phone,
       'address[address]': customer.address.addressLine,
       'address[city]': customer.address.city,
@@ -18,9 +18,9 @@ exports.mapCustomerToLeap = async (customer) => {
       'address[country_id]': "1",
       'address[zip]': customer.address.postalCode,
       'company_name': customer.companyName || '',  
-      'is_commercial': false, 
-      'call_required':  false, 
-      'appointment_required':  false,    
+      'is_commercial': 0, 
+      'call_required':  0, 
+      'appointment_required':  0,    
     };
   };
 
