@@ -201,7 +201,7 @@ const handleOpportunityWebhook = async (req, res) => {
         assignedTo: jobData.assignedTo,
         status: jobData.status,
         createdAt: jobData.createdAt,
-        source: "GoHighLevel",
+        source: "GHL",
         synced: false,
       });
 
