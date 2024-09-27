@@ -12,7 +12,7 @@ exports.mapCustomerToLeap = async (customer) => {
       email: customer.email,
       phones: [
         {
-          label: 'primary',  
+          label: 'cell',  
           number: customer.phone
         }
       ],
@@ -24,7 +24,7 @@ exports.mapCustomerToLeap = async (customer) => {
         zip: customer.address.postalCode || ''
       },
       company_name: customer.companyName || '',  
-      is_commercial: 0, 
+      is_commercial: false, 
       call_required:  false, 
       appointment_required:  false,    
     };

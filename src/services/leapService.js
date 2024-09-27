@@ -83,6 +83,8 @@ const fetchAllCustomers = async (limit = 5, page = 1) => {
 // Sync customer (contact) to Leap
 const syncCustomerToLeap = async (customerData) => {
   try {
+    console.log("this is the customer to be synced with Leap");
+    console.log(customerData);
     const data = qs.stringify(customerData);  // URL-encoded format for Leap API
     const response = await axios.post(`${process.env.LEAP_API_URL}/customers`, data, {
       headers: {
