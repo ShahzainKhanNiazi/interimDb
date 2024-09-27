@@ -24,10 +24,9 @@ exports.mapCustomerToLeap = async (customer) => {
         zip: customer.address.postalCode || ''
       },
       company_name: customer.companyName || '',  
-      is_commercial: customer.isCommercial || 0, 
-      call_required: customer.callRequired || 0, 
-      appointment_required: customer.appointmentRequired || 0,  
-      note: customer.notes || ''  
+      is_commercial: 0, 
+      call_required:  0, 
+      appointment_required:  0,    
     };
   };
 
@@ -43,8 +42,8 @@ exports.mapJobToLeap = (job, customer) => {
     customer_id: customer.leapCustomerId,  // Use Leap-specific customer ID
     name: job.name || 'Unnamed Job',  
     description: job.description,  
-    call_required: job.callRequired || 0,  
-    appointment_required: job.appointmentRequired || 0, 
+    call_required: 0,  
+    appointment_required: 0, 
     same_as_customer_address: 1,  
     trades: [defaultTradeId],
   };

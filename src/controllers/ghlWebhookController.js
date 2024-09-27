@@ -164,11 +164,20 @@ const handleOpportunityWebhook = async (req, res) => {
       const mappedCustomerData = await mapCustomerToLeap(customer);  // Map customer to Leap's format
       console.log("this is the mapped customer for leap");
       console.log(mappedCustomerData);
+
+      //sync customer with Leap
+      try {   
       const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
       customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
       customer.synced = true;
       await customer.save();
       console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
+      } catch (error) {
+        console.error(`Error syncing customer with Leap: ${error.message}`);
+        res.status(500).send('Failed to sync customer with Leap')
+      }
+
+
     }
 
     if (existingJob) {
