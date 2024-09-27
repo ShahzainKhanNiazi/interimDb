@@ -220,7 +220,7 @@ const handleOpportunityWebhook = async (req, res) => {
     //   existingJob.synced = true;
     //   await existingJob.save();
     //   console.log(`Job ${jobData.ghlJobId} successfully synced with Leap and updated in MongoDB.`);
-    //   res.status(200).send('Job synced with Leap');
+      res.status(200).send('Job synced with Leap');
     // } catch (error) {
     //   console.error(`Error syncing job with Leap: ${error.message}`);
     //   res.status(500).send('Failed to sync job with Leap');
