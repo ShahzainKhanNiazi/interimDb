@@ -11,7 +11,7 @@ exports.mapCustomerToLeap = async (customer) => {
       'last_name': customer.lastName,
       'email': customer.email,
       'phones[0][label]':  'cell',
-      'phones[0][number]': customer.phone,
+      'phones[0][number]': '12345678900',
       'address[address]': customer.address.addressLine,
       'address[city]': customer.address.city,
       'address[state_id]': '3',
