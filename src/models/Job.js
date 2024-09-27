@@ -20,7 +20,7 @@ const jobSchema = new mongoose.Schema({
 
   // Job creation and update timestamps from both CRMs
   createdAt: { type: Date, required: true },  // Created at timestamp
-  updatedAt: { type: Date, required: true },  // Updated at timestamp
+  updatedAt: { type: Date, required: false },  // Updated at timestamp
 
   // Assigned user (created_by for Leap, assignedTo for GHL)
   assignedTo: { type: String, required: false },
