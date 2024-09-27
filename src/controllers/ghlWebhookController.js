@@ -196,8 +196,8 @@ const handleOpportunityWebhook = async (req, res) => {
         name: jobData.name || 'Unnamed Job',
         customerId: customer._id,  // Link the associated customer from MongoDB
         description: `This job was created in GoHighLevel ${pipelineName} Renovations pipeline and assigned to ${jobData.assignedTo} in GoHighLevel`,
-        pipeline: pipelineName || 'General',  // Use the pipeline name from GHL or set a default
-        currentStage: stageName || 'New Lead',  // Use the pipeline stage name from GHL or default
+        pipeline: pipelineName,  // Use the pipeline name from GHL or set a default
+        currentStage: stageName,  // Use the pipeline stage name from GHL or default
         assignedTo: jobData.assignedTo,
         status: jobData.status,
         createdAt: jobData.createdAt,
