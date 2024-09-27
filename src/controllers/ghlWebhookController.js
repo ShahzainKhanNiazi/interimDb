@@ -224,7 +224,7 @@ const handleOpportunityWebhook = async (req, res) => {
 
     // Step 4: Sync the job (opportunity) with Leap
     try {
-      const leapJob = await syncOpportunityToLeap(mappedJobData);
+      const leapJob = await syncJobToLeap(mappedJobData);
       existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
       existingJob.synced = true;
       await existingJob.save();
