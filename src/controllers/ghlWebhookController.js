@@ -433,9 +433,56 @@ const handleStageChangeWebhook = async (req, res) => {
 };
 
 
+// Controller method to handle pipeline change webhook
+const handlePipelineChangeWebhook = async (req, res) => {
+  try {
+    const { id: opportunityId, pipeline_id: pipelineId } = req.body; // Extracting fields from the payload
+    console.log('Received GHL opportunity pipeline change webhook:', req.body);
+
+    // Step 1: Find the job in MongoDB by GHL job ID
+    let job = await Job.findOne({ ghlJobId: opportunityId });
+
+    // Step 2: Check if the job exists in MongoDB
+    if (!job) {
+      console.error(`Job with GHL ID ${opportunityId} not found in MongoDB.`);
+      return res.status(404).send('Job not found');
+    }
+
+    // Step 3: Look up the pipeline name using the incoming pipeline ID
+    const pipelineName = await ghlPipelineMapping.idToName[pipelineId];
+
+    if (!pipelineName) {
+      console.error(`Pipeline ID ${incomingPipelineId} not found in GHL pipeline mapping.`);
+      return res.status(400).send('Invalid pipeline ID');
+    }
+
+    // Step 4: Compare the incoming pipeline name with the job's current pipeline value in MongoDB
+    if (job.pipeline === pipelineName) {
+      console.log(`Job ${opportunityId} is already in pipeline: ${pipelineName}. No update required.`);
+      return res.status(200).send('No pipeline change detected');
+    }
+
+    // Step 5: Update the job's pipeline field in MongoDB if the pipeline has changed
+    job.pipeline = pipelineName;
+    job.updatedAt = new Date();  // Update the timestamp
+    await job.save();
+
+    console.log(`Job ${opportunityId} pipeline updated to ${pipelineName} in MongoDB.`);
+    res.status(200).send('Pipeline updated successfully');
+
+  } catch (error) {
+    console.error('Error handling GHL opportunity pipeline change webhook:', error);
+    res.status(500).send('Error handling pipeline change webhook');
+  }
+};
+
+
+
+
 
 module.exports = {
   handleContactWebhook,
   handleOpportunityWebhook,
-  handleStageChangeWebhook
+  handleStageChangeWebhook,
+  handlePipelineChangeWebhook
 };
