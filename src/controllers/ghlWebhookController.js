@@ -175,7 +175,8 @@ const handleOpportunityWebhook = async (req, res) => {
       console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
       } catch (error) {
         console.error(`Error syncing customer with Leap: ${error.message}`);
-        res.status(500).send('Failed to sync customer with Leap')
+        res.status(500).send('Failed to sync customer with Leap');
+        return;
       }
 
 
@@ -252,39 +253,160 @@ const handleStageChangeWebhook = async (req, res) => {
 
     // Step 1: Find the job in MongoDB by GHL job ID
     let job = await Job.findOne({ ghlJobId: opportunityId });
+ // Step 1: Check if the job (opportunity) already exists in MongoDB
+ let existingJob = await Job.findOne({ ghlJobId: jobData?.ghlJobId });
 
-    if (!job) {
-      console.error(`Job with GHL ID ${opportunityId} not found in MongoDB.`);
-      return res.status(404).send('Job not found in MongoDB');
-    }
+ // Step 2: Ensure the associated contact (customer) is synced first
+ let customer = await Customer.findOne({ ghlCustomerId: req.body.contact_id });
 
-    // Step 2: If job exists, check if it is synced with Leap
-    if (!job.synced) {
-      console.log(`Job with GHL ID ${opportunityId} is not synced with Leap. Syncing now...`);
 
-      try {
-        const customer = await Customer.findById(job.customerId);
-        if (!customer) {
-          console.error(`Customer with ID ${job.customerId} not found.`);
-          return res.status(404).send('Customer not found');
-        }
+ if (customer) {
+   // console.log('Customer found in MongoDB:', customer);
+ } else {
+   console.log(`Customer with GHL ID ${req.body.contact_id} not found in MongoDB. Creating new customer record.`);
 
-        const mappedJobData = await mapJobToLeap(job, customer);
+   // Create new customer in MongoDB
+   customer = 
+   new Customer({
+    ghlCustomerId: req.body.contact_id,
+    firstName: req.body.first_name,
+    lastName: req.body.last_name,
+    email: req.body.email,
+    phone: req.body.phone ? req.body.phone.replace('+', '') : '', // Remove '+' from phone
+    address: {
+      addressLine: req.body.address1 || '',
+      city: req.body.city || '',
+      state: req.body.state || '',
+      postalCode: req.body.postal_code || '',
+      country: req.body.country || '',
+    },
+    companyName: req.body.companyName || '',
+    customerRep: '',
+    notes: '',
+    source: 'GHL',
+    synced: false, // Customer is not yet synced with Leap
+  });
+  //   new Customer({
+  //    ghlCustomerId: contactData.contactId,
+  //    firstName: contactData.firstName,
+  //    lastName: contactData.lastName,
+  //    email: contactData.email,
+  //    phone: contactData.phone,
+  //    address: {
+  //      addressLine: contactData.address.addressLine || '',
+  //      city: contactData.address.city || '',
+  //      state: contactData.address.state || '',
+  //      postalCode: contactData.address.postalCode || '',
+  //      country: contactData.address.country || '',
+  //    },
+  //    companyName: '',
+  //    customerRep: '',
+  //    notes: '',
+  //    source: 'GHL',
+  //    synced: false,  // Not synced with Leap yet
+  //  });
+   await customer.save();
+   console.log(`Customer ${contactData.contactId} created and saved in MongoDB.`);
+ }
 
-        // Sync job with Leap
-        const leapJob = await syncJobToLeap(mappedJobData);
+ // Sync customer with Leap if not already synced
+ if (!customer?.synced) {
+   console.log(`Customer ${customer?.ghlCustomerId} not synced with Leap. Syncing now...`);
 
-        // Update MongoDB with Leap job ID and mark as synced
-        job.leapJobId = leapJob.id;
-        job.synced = true;
-        await job.save();
+   const mappedCustomerData = await mapCustomerToLeap(customer);  // Map customer to Leap's format
+   console.log("this is the mapped customer for leap");
+   console.log(mappedCustomerData);
 
-        console.log(`Job with GHL ID ${opportunityId} successfully synced with Leap.`);
-      } catch (syncError) {
-        console.error(`Error syncing job to Leap: ${syncError.message}`);
-        return res.status(500).send('Error syncing job to Leap');
-      }
-    }
+   //sync customer with Leap
+   try {   
+   const leapCustomer = await syncCustomerToLeap(mappedCustomerData);  // Sync with Leap
+   customer.leapCustomerId = leapCustomer.customer.id;  // Save Leap's customer ID
+   customer.synced = true;
+   await customer.save();
+   console.log(`Customer ${customer.ghlCustomerId} successfully synced with Leap.`);
+   } catch (error) {
+     console.error(`Error syncing customer with Leap: ${error.message}`);
+     res.status(500).send('Failed to sync customer with Leap');
+     return;
+   }
+
+
+ }
+
+ if (existingJob) {
+   console.log(`Job with GHL Opportunity ID ${jobData.ghlJobId} already exists in MongoDB.`);
+   // console.log(existingJob);
+
+   // If the job is already synced, skip further processing
+   if (existingJob?.synced) {
+     console.log(`Job ${jobData.ghlJobId} is already synced with Leap. Skipping sync.`);
+     return res.status(200).send('Job already synced');
+   }
+ } else {
+   console.log(`Job not found in MongoDB. Creating a new job record.`);
+
+   // Map pipeline name and stage from the mapping files
+   const pipelineName = await ghlPipelineMapping.idToName[jobData.pipelineId];
+   console.log("this is the pipeline name in the code ", pipelineName);
+   const stageName = jobData?.pipelineStageName;
+   console.log("this is the pipeline stage name from GHL ", stageName);
+
+
+   // Create new job record in MongoDB
+   existingJob = new Job({
+        ghlJobId: opportunityId,
+        name: req.body.opportunity_name || 'Unnamed Job',
+        customerId: customer && customer._id,  // Link associated customer
+        description: `This job was created in GoHighLevel ${pipelineName} Renovations pipeline and assigned to ${jobData.assignedTo} in GoHighLevel`,
+        pipeline: pipelineName || 'Default Pipeline',  // Map the pipeline ID from GHL or use default
+        currentStage: stageName,  // Use the pipeline stage name from GHL
+        status: req.body.status,
+        assignedTo: req.body.owner,
+        createdAt: req.body.date_created,
+        source: "GHL",   
+        synced: false, // Mark as not synced with Leap yet
+  });
+   
+  //   Job({
+  //    ghlJobId: jobData.ghlJobId,
+  //    name: jobData.name || 'Unnamed Job',
+  //    customerId: customer._id,  // Link the associated customer from MongoDB
+  //    description: `This job was created in GoHighLevel ${pipelineName} Renovations pipeline and assigned to ${jobData.assignedTo} in GoHighLevel`,
+  //    pipeline: pipelineName,  // Use the pipeline name from GHL or set a default
+  //    currentStage: stageName,  // Use the pipeline stage name from GHL or default
+  //    assignedTo: jobData.assignedTo,
+  //    status: jobData.status,
+  //    createdAt: jobData.createdAt,
+  //    source: "GHL",
+  //    synced: false,
+  //  });
+
+   
+   await existingJob.save();
+   console.log(`Job ${jobData.ghlJobId} saved to MongoDB.`);
+ }
+
+
+ if (!job.synced) {
+  // Step 3: Map the opportunity data for Leap and store it in MongoDB
+ const mappedJobData = mapJobToLeap(existingJob, customer);  // Mapping GHL job data to Leap format
+ console.log('Mapped Job Data:', mappedJobData);
+
+ // Step 4: Sync the job (opportunity) with Leap
+ try {
+   const leapJob = await syncJobToLeap(mappedJobData);
+   existingJob.leapJobId = leapJob.job.id;  // Save Leap job ID
+   existingJob.synced = true;
+   await existingJob.save();
+   console.log(`Job ${jobData.ghlJobId} successfully synced with Leap and updated in MongoDB.`);
+   res.status(200).send('Job synced with Leap');
+ } catch (error) {
+   console.error(`Error syncing job with Leap: ${error.message}`);
+   res.status(500).send('Failed to sync job with Leap');
+ }
+
+
+ }
 
     // Step 3: Get the GHL stage name using the stage ID
     const ghlStageName = pipeline_stage;
