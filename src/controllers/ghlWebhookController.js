@@ -334,7 +334,7 @@ const handleStageChangeWebhook = async (req, res) => {
         ghlJobId: opportunityId,
         name: req.body?.opportunity_name || 'Unnamed Job',
         customerId: customer && customer._id,  // Link associated customer
-        description: `This job was created in GoHighLevel ${pipelineName} Renovations pipeline and assigned to ${jobData.assignedTo} in GoHighLevel`,
+        description: `This job was created in GoHighLevel ${pipelineName} Renovations pipeline and assigned to ${req.body?.owner} in GoHighLevel`,
         pipeline: pipelineName || 'Default Pipeline',  // Map the pipeline ID from GHL or use default
         currentStage: stageName,  // Use the pipeline stage name from GHL
         status: req.body?.status,
