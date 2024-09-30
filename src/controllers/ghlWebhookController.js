@@ -450,9 +450,13 @@ const handlePipelineChangeWebhook = async (req, res) => {
 
     // Step 3: Look up the pipeline name using the incoming pipeline ID
     const pipelineName = await ghlPipelineMapping.idToName[pipelineId];
+    console.log("Incoming GHL opportunity pipeline name");
+    console.log(`MongoDB job current stage ${job.pipeline}`);
+
+
 
     if (!pipelineName) {
-      console.error(`Pipeline ID ${incomingPipelineId} not found in GHL pipeline mapping.`);
+      console.error(`Pipeline ID ${pipelineId} not found in GHL pipeline mapping.`);
       return res.status(400).send('Invalid pipeline ID');
     }
 
