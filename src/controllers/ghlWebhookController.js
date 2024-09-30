@@ -359,7 +359,7 @@ const handleStageChangeWebhook = async (req, res) => {
    const leapJob = await syncJobToLeap(mappedJobData);
    job.leapJobId = leapJob.job.id;  // Save Leap job ID
    job.synced = true;
-   await existingJob.save();
+   await job.save();
    console.log(`Job ${job.ghlJobId} successfully synced with Leap and updated in MongoDB.`);
    res.status(200).send('Job synced with Leap');
  } catch (error) {
