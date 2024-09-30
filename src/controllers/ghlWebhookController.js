@@ -247,7 +247,8 @@ const handleOpportunityWebhook = async (req, res) => {
 // Handle GHL opportunity stage change webhook
 const handleStageChangeWebhook = async (req, res) => {
   try {
-    const { id: opportunityId,  pipleline_stage: pipeline_stage } = req.body;  // Extracting fields from the payload
+    
+    const { id: opportunityId,  pipleline_stage: pipeline_stage, pipeline_id: pipelineId, pipeline_name } = req.body;  // Extracting fields from the payload
     console.log('Received GHL opportunity stage change webhook:', req.body);
     console.log(`This is the pipeline stage in GHL ${pipeline_stage}`);
 
@@ -255,7 +256,7 @@ const handleStageChangeWebhook = async (req, res) => {
     let job = await Job.findOne({ ghlJobId: opportunityId });
 
      // Step 2: Ensure the associated contact (customer) is synced first
-   let customer = await Customer.findOne({ ghlCustomerId: req?.body?.contact_id });
+   let customer = await Customer.findOne({ ghlCustomerId: req.body?.contact_id });
 
 
  if (customer) {
@@ -264,8 +265,7 @@ const handleStageChangeWebhook = async (req, res) => {
    console.log(`Customer with GHL ID ${req.body?.contact_id} not found in MongoDB. Creating new customer record.`);
 
    // Create new customer in MongoDB
-   customer = 
-   new Customer({
+   customer = new Customer({
     ghlCustomerId: req.body?.contact_id,
     firstName: req.body?.first_name,
     lastName: req.body?.last_name,
@@ -285,7 +285,7 @@ const handleStageChangeWebhook = async (req, res) => {
     synced: false, // Customer is not yet synced with Leap
   });
    await customer.save();
-   console.log(`Customer ${contactData.contactId} created and saved in MongoDB.`);
+   console.log(`Customer ${req.body?.contact_id} created and saved in MongoDB.`);
  }
 
  // Sync customer with Leap if not already synced
@@ -323,7 +323,7 @@ const handleStageChangeWebhook = async (req, res) => {
    console.log(`Job not found in MongoDB. Creating a new job record.`);
 
    // Map pipeline name and stage from the mapping files
-   const pipelineName = await ghlPipelineMapping.idToName[req.body?.pipeline_id];
+   const pipelineName = await ghlPipelineMapping.idToName[pipelineId];
    console.log("this is the pipeline name in the code ", pipelineName);
    const stageName = pipeline_stage;
    console.log("this is the pipeline stage name from GHL ", stageName);
