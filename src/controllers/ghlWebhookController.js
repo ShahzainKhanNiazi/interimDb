@@ -436,7 +436,7 @@ const handleStageChangeWebhook = async (req, res) => {
 // Controller method to handle pipeline change webhook
 const handlePipelineChangeWebhook = async (req, res) => {
   try {
-    const { id: opportunityId, pipeline_id: pipelineId } = req.body; // Extracting fields from the payload
+    const { id: opportunityId, pipeline_id: pipelineId, pipleline_stage: pipeline_stage } = req.body; // Extracting fields from the payload
     console.log('Received GHL opportunity pipeline change webhook:', req.body);
 
     // Step 1: Find the job in MongoDB by GHL job ID
@@ -450,6 +450,7 @@ const handlePipelineChangeWebhook = async (req, res) => {
 
     // Step 3: Look up the pipeline name using the incoming pipeline ID
     const pipelineName = await ghlPipelineMapping.idToName[pipelineId];
+    const stageName = pipeline_stage;
     console.log(`Incoming GHL opportunity pipeline name ${pipelineName}`);
     console.log(`MongoDB job current stage ${job.pipeline}`);
 
@@ -460,6 +461,11 @@ const handlePipelineChangeWebhook = async (req, res) => {
       return res.status(400).send('Invalid pipeline ID');
     }
 
+    if (!stageName) {
+      console.error(`Stage name ${stageName} not found in GHL stage mapping.`);
+      return res.status(400).send('Invalid stage name');
+    }
+
     // Step 4: Compare the incoming pipeline name with the job's current pipeline value in MongoDB
     if (job.pipeline === pipelineName) {
       console.log(`Job ${opportunityId} is already in pipeline: ${pipelineName}. No update required.`);
@@ -468,6 +474,7 @@ const handlePipelineChangeWebhook = async (req, res) => {
 
     // Step 5: Update the job's pipeline field in MongoDB if the pipeline has changed
     job.pipeline = pipelineName;
+    job.currentStage = stageName;
     job.updatedAt = new Date();  // Update the timestamp
     await job.save();
 
