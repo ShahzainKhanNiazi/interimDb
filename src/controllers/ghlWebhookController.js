@@ -450,7 +450,7 @@ const handlePipelineChangeWebhook = async (req, res) => {
 
     // Step 3: Look up the pipeline name using the incoming pipeline ID
     const pipelineName = await ghlPipelineMapping.idToName[pipelineId];
-    console.log("Incoming GHL opportunity pipeline name");
+    console.log(`Incoming GHL opportunity pipeline name ${pipelineName}`);
     console.log(`MongoDB job current stage ${job.pipeline}`);
 
 
