@@ -17,6 +17,7 @@ exports.mapCustomerToLeap = async (customer) => {
       'address[country_id]': "1",
       'address[zip]': customer.address.postalCode,
       'company_name': customer.companyName || '',  
+      'referred_by_type': customer.originalSource,
       'is_commercial': 0, 
       'call_required':  0, 
       'appointment_required':  0,    
@@ -54,14 +55,14 @@ exports.mapCustomerToGHL = (customer) => {
     state: customer.address?.state || '',
     postalCode: customer.address?.postalCode || '',
     companyName: customer.companyName || '',  
-    tags: customer.tags || ['leap-customer'],  
+    tags: ['leap-customer', customer.originalSource || ''],  
     customField: 
       {
           "iU9cFhEGJCqkxIZeEAdg": customer.customerRep || '',
       }
   ,
     dnd: customer.dnd || false,  
-    source: 'Leap'  
+    source: customer.originalSource  
   };
 };
 

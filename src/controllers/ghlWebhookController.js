@@ -46,6 +46,7 @@ const handleContactWebhook = async (req, res) => {
         customerRep: customerData.assignedTo || '',
         notes: '',
         source: 'GHL',
+        originalSource: customerData.source,
         synced: false  // Not synced yet with Leap
       });
 
@@ -152,6 +153,7 @@ const handleOpportunityWebhook = async (req, res) => {
         customerRep: '',
         notes: '',
         source: 'GHL',
+        originalSource: contactData.contactSource,
         synced: false,  // Not synced with Leap yet
       });
       await customer.save();
@@ -178,8 +180,6 @@ const handleOpportunityWebhook = async (req, res) => {
         res.status(500).send('Failed to sync customer with Leap');
         return;
       }
-
-
     }
 
     if (existingJob) {
@@ -213,6 +213,7 @@ const handleOpportunityWebhook = async (req, res) => {
         status: jobData.status,
         createdAt: jobData.createdAt,
         source: "GHL",
+        originalSource: jobData.source,
         synced: false,
       });
 
@@ -282,6 +283,7 @@ const handleStageChangeWebhook = async (req, res) => {
     customerRep: '',
     notes: '',
     source: 'GHL',
+    originalSource: req.body?.contact_source,
     synced: false, // Customer is not yet synced with Leap
   });
    await customer.save();
@@ -340,7 +342,8 @@ const handleStageChangeWebhook = async (req, res) => {
         status: req.body?.status,
         assignedTo: req.body?.owner,
         createdAt: req.body?.date_created,
-        source: "GHL",   
+        source: "GHL",
+        originalSource: req.body?.opportunity_source,   
         synced: false, // Mark as not synced with Leap yet
   });
       

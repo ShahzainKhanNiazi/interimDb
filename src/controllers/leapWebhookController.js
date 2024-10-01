@@ -68,6 +68,7 @@ const handleWebhook = async (req, res) => {
                                   customerRep: leapCustomerRep || '',
                                   notes: customerData.note || '',
                                   source: 'Leap',  // Source is Leap for customer data from Leap
+                                  originalSource: customerData.referred_by_type,
                                   synced: false
                               });
       
@@ -207,6 +208,7 @@ try {
       customerRep: leapCustomerRep || '',
       notes: customerData.note || '',
       source: 'Leap',
+      originalSource: customerData.referred_by_type,
       synced: false
     });
     await customer.save();
@@ -370,6 +372,7 @@ try {
       customerRep: leapCustomerRep || '',
       notes: customerData.note || '',
       source: 'Leap',
+      originalSource: customerData.referred_by_type,
       synced: false
     });
     await customer.save();

@@ -39,6 +39,7 @@ const jobSchema = new mongoose.Schema({
 
   // Source of the job data (either 'Leap' or 'GHL')
   source: { type: String, enum: ['Leap', 'GHL'], required: true },
+  originalSource:{ type: String },
 
   // Synced flag to know if the job is synced across CRMs
   synced: { type: Boolean, default: false }

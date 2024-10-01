@@ -18,6 +18,7 @@ const customerSchema = new mongoose.Schema({
   customerRep: { type: String },
   notes: { type: String, required: false },
   source: { type: String, enum: ['Leap', 'GHL'], required: true },
+  originalSource:{ type: String },
   synced: { type: Boolean, default: false }
 }, { timestamps: true });
 
