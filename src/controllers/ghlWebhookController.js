@@ -491,6 +491,34 @@ const handlePipelineChangeWebhook = async (req, res) => {
 };
 
 
+const handleEstimateBookingWebhook = async (req, res) => {
+  try {
+    const appointmentInformation = req.body;
+    console.log("this is the estimate appointment information received");
+    console.log(appointmentInformation);
+    
+    res.status(200).send('Estimate appointment booking information processed successfully');
+  } catch (error) {
+    console.error('Error handling GHL Estimate appointment booking:', error);
+    res.status(500).send('Error handling GHL Estimate appointment booking');
+  }
+}
+
+
+const handleJobsBookingWebhook = async (req, res) => {
+  try {
+    const appointmentInformation = req.body;
+    console.log("this is the jobs appointment information received");
+    console.log(appointmentInformation);
+    
+    res.status(200).send('Jobs appointment booking information processed successfully');
+  } catch (error) {
+    console.error('Error handling GHL Jobs appointment booking:', error);
+    res.status(500).send('Error handling GHL Jobs appointment booking');
+  }
+}
+
+
 
 
 
@@ -498,5 +526,7 @@ module.exports = {
   handleContactWebhook,
   handleOpportunityWebhook,
   handleStageChangeWebhook,
-  handlePipelineChangeWebhook
+  handlePipelineChangeWebhook,
+  handleEstimateBookingWebhook,
+  handleJobsBookingWebhook,
 };
