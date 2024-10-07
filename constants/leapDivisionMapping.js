@@ -1,9 +1,9 @@
 const leapDivisionMapping = {
     nameToId: {
-        "Roofing Division": "Roofing",
+        "Roofing Division": "Exterior",
         "Exterior Division": "Exterior",
         "Interior Division": "Interior",
-        "Repair Division" : "Roofing",
+        "Repair Division" : "Exterior",
     },
 
     idToName: {

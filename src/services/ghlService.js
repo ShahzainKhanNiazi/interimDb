@@ -121,6 +121,21 @@ const syncOpportunityToGHL = async (opportunityData) => {
   }
 };
 
+const updateOpportunityInGHL = async (opportunityId, updatedData) => {
+  try {
+    console.log(`Updating opportunity ${opportunityId} with data:`, updatedData);
+    
+    // Perform the PUT request to update the opportunity in GHL
+    const response = await ghlRequest('put', `/opportunities/${opportunityId}`, updatedData);
+    
+    console.log(`Opportunity updated in GHL: ${JSON.stringify(response)}`);
+    return response;
+  } catch (error) {
+    console.error('Error updating opportunity in GHL:', error);
+    throw error;
+  }
+};
+
 
 // Update opportunity stage in GHL (already mapped stage data)
 const updateOpportunityStageInGHL = async (opportunityId, pipelineStageId) => {
@@ -144,5 +159,6 @@ module.exports = {
   syncCustomerToGHL,
   syncOpportunityToGHL,
   updateOpportunityStageInGHL,
+  updateOpportunityInGHL,
   fetchContactFromGHL,
 };

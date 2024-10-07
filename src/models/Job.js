@@ -35,7 +35,7 @@ const jobSchema = new mongoose.Schema({
   status: { type: String, required: false },
 
   // Monetary value from GHL (if applicable)
-  monetaryValue: { type: Number, required: false },
+  price: { type: Number, required: false },
 
   // Source of the job data (either 'Leap' or 'GHL')
   source: { type: String, enum: ['Leap', 'GHL'], required: true },

@@ -78,6 +78,27 @@ const fetchAllCustomers = async (limit = 5, page = 1) => {
   }
 };
 
+// Get financial summary for a job using fetchData helper
+const getFinancialSummaryForJob = async (jobId) => {
+  const url = `${process.env.LEAP_API_URL}/jobs/${jobId}/financial_summary`;  // Endpoint to get financial summary
+
+  try {
+    // Use fetchData helper to handle the request with retries
+    const financialSummary = await fetchData(url);
+    console.log(`Fetched financial summary for job ${jobId}:`, financialSummary);
+
+    // Return the financial summary data
+    return financialSummary.data[0];
+  } catch (error) {
+    console.error(`Error fetching financial summary for job ${jobId}:`, error.message);
+    throw new ApiError(
+      error.response?.status || 500,
+      `Failed to fetch financial summary for job ${jobId}`,
+      error.response?.data || error.message
+    );
+  }
+};
+
 // Service methods for syncing GHL data to Leap
 
 // Sync customer (contact) to Leap
@@ -99,6 +120,40 @@ const fetchAllCustomers = async (limit = 5, page = 1) => {
 //     throw new ApiError(error.response?.status || 500, 'Error syncing customer to Leap', error.response?.data || error.message);
 //   }
 // };
+
+
+// Add a note to a job
+const addNoteToJob = async (jobId, noteContent) => {
+  const url = `${process.env.LEAP_API_URL}/jobs/${jobId}/notes`;  // Endpoint to add a note to the job
+  const formData = new FormData();
+  formData.append('note', noteContent);  // Add the note content
+
+  try {
+    const config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: url,
+      headers: {
+        'Authorization': `Bearer ${process.env.LEAP_API_TOKEN}`,
+        ...formData.getHeaders()  // Add form headers
+      },
+      data: formData
+    };
+
+    const response = await axios(config);
+    console.log(`Note added successfully to job ${jobId}:`, response.data);
+
+    // Return the response from Leap
+    return response.data;
+  } catch (error) {
+    console.error(`Error adding note to job ${jobId}:`, error.message);
+    throw new ApiError(
+      error.response?.status || 500,
+      `Failed to add note to job ${jobId}`,
+      error.response?.data || error.message
+    );
+  }
+};
 
 // Sync customer (contact) to Leap
 const syncCustomerToLeap = async (customerData) => {

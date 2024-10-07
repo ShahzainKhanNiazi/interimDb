@@ -314,13 +314,6 @@ const handleStageChangeWebhook = async (req, res) => {
 
  if (job) {
    console.log(`Job with GHL Opportunity ID ${job.ghlJobId} already exists in MongoDB.`);
-   
-
-   // If the job is already synced, skip further processing
-   if (job?.synced) {
-     console.log(`Job ${job.ghlJobId} is already synced with Leap. Skipping sync.`);
-     return res.status(200).send('Job already synced');
-   }
  } else {
    console.log(`Job not found in MongoDB. Creating a new job record.`);
 
