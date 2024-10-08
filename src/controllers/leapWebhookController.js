@@ -1,5 +1,5 @@
-const { fetchCustomerById, fetchJobById } = require('../services/leapService');
-const { syncCustomerToGHL, syncOpportunityToGHL, updateOpportunityStageInGHL } = require('../services/ghlService');
+const { fetchCustomerById, fetchJobById, getFinancialSummaryForJob } = require('../services/leapService');
+const { syncCustomerToGHL, syncOpportunityToGHL, updateOpportunityStageInGHL, updateOpportunityInGHL } = require('../services/ghlService');
 const { mapCustomerToGHL, mapJobToGHL } = require('../utils/dataMapper');
 const Customer = require('../models/Customer');
 const Job = require('../models/Job');
@@ -421,7 +421,7 @@ const handleJobCreationAndSync = async (jobData, customer, leapStageName) => {
     // Sync job with GHL
     const pipelineId = await ghlPipelineMapping.nameToId[newJob.pipeline] || ghlDefaultPipelineId;
     const mappedOpportunityData = await mapJobToGHL(newJob, customer);
-    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
+    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData);
 
     newJob.ghlJobId = ghlOpportunity.id;
     newJob.synced = true;
@@ -453,7 +453,7 @@ try {
     if (!customer) throw new Error(`Customer with ID ${job.customerId} not found`);
     const pipelineId = await ghlPipelineMapping.nameToId[job.pipeline] || ghlDefaultPipelineId;
     const mappedOpportunityData = await mapJobToGHL(job, customer);
-    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData, pipelineId);
+    const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData);
 
     job.ghlJobId = ghlOpportunity.id;
     job.synced = true;
@@ -472,10 +472,56 @@ try {
   await job.save();
 
   if (syncStages.includes(leapStageName)) {
+
     const pipelineId = await ghlPipelineMapping.nameToId[job.pipeline] || ghlDefaultPipelineId;
     const pipelineStageId = await getPipelineStageId(pipelineId, leapStageName);
     await updateOpportunityStageInGHL(job.ghlJobId, pipelineStageId);
+    
+
+        // Step 5: If stage is 'Awaiting Schedule Date', fetch financial summary and update job monetoryValue
+        if (leapStageName === 'Awaiting Schedule Date') {
+          try {
+            // Fetch financial summary for the job
+            const financialSummary = await getFinancialSummaryForJob(job.leapJobId);
+            console.log("this is the financial summary returned from Leap");
+            console.log(financialSummary);
+
+            const jobPrice = financialSummary?.total_job_price;
+            console.log("this is the job price returned from Leap");
+            console.log(jobPrice);
+    
+            if (jobPrice) {
+              // Update job's monetary value in MongoDB
+              job.monetoryValue = jobPrice;
+              await job.save();
+              console.log(`Job ${job.leapJobId} monetary value updated to ${jobPrice} in MongoDB.`);
+    
+              // Prepare the object to update opportunity in GHL
+              const updatedOpportunity = {
+                monetaryValue: jobPrice, // Set the monetary value from the financial summary
+              };
+    
+              // Update opportunity in GHL with the monetary value
+              await updateOpportunityInGHL(job.ghlJobId, updatedOpportunity);
+              console.log(`Opportunity ${job.ghlJobId} monetary value updated to ${jobPrice} in GHL.`);
+            } else {
+              console.warn(`No job price found in financial summary for job ${job.leapJobId}.`);
+            }
+          } catch (error) {
+            console.error(`Error fetching financial summary or updating job: ${error.message}`);
+          }
+        }
+    
     console.log(`Job ${notification.id} stage updated in GHL.`);
+
+    result = {
+      action: 'jobs',
+      operation: 'stage_change',
+      leapData: updatedJob,
+      stageMovedFrom: notification.stage_moved_from,
+      stageMovedTo: notification.stage_moved_to,
+      status: 'Stage synced with GHL'
+    };
   }
 } catch (error) {
   console.error(`Error handling job stage change: ${error.message}`);

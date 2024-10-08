@@ -88,7 +88,7 @@ const getFinancialSummaryForJob = async (jobId) => {
     console.log(`Fetched financial summary for job ${jobId}:`, financialSummary);
 
     // Return the financial summary data
-    return financialSummary.data[0];
+    return financialSummary?.data?.[0];
   } catch (error) {
     console.error(`Error fetching financial summary for job ${jobId}:`, error.message);
     throw new ApiError(
@@ -254,4 +254,6 @@ module.exports = {
   syncCustomerToLeap,
   syncJobToLeap,
   updateJobStageInLeap,
+  getFinancialSummaryForJob,
+  addNoteToJob
 };
