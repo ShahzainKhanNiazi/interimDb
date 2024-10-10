@@ -450,7 +450,17 @@ try {
   // Step 2: If job exists but not synced, sync it
   if (!job.synced) {
     const customer = await Customer.findById(job.customerId);
-    if (!customer) throw new Error(`Customer with ID ${job.customerId} not found`);
+    // If customer is not found, fetch from Leap and create in MongoDB
+  if (!customer) {
+    console.warn(`Customer with ID ${job.customerId} not found in MongoDB. Fetching from Leap...`);
+
+    const jobInfo = await fetchJobById(job.leapJobId);  // Fetch the job info to get the customer ID
+    const jobData = jobInfo.data;
+
+    // Use handleCustomerSync to create a new customer
+    customer = await handleCustomerSync(jobData.customer_id);  // Create new customer in MongoDB
+    console.log(`Customer ${jobData.customer_id} created and saved in MongoDB.`);
+  }
     const pipelineId = await ghlPipelineMapping.nameToId[job.pipeline] || ghlDefaultPipelineId;
     const mappedOpportunityData = await mapJobToGHL(job, customer);
     const ghlOpportunity = await syncOpportunityToGHL(mappedOpportunityData);
@@ -517,7 +527,7 @@ try {
     result = {
       action: 'jobs',
       operation: 'stage_change',
-      leapData: updatedJob,
+      leapData: job,
       stageMovedFrom: notification.stage_moved_from,
       stageMovedTo: notification.stage_moved_to,
       status: 'Stage synced with GHL'

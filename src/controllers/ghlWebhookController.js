@@ -492,36 +492,36 @@ const handleEstimateBookingWebhook = async (req, res) => {
     // Step 1: Extract necessary fields from the payload
     const { id: opportunityId, customData } = appointmentInformation;  // Extracting Opportunity ID and Custom Data
 
-    // // Step 2: Find the job in MongoDB by GHL job ID
-    // let job = await Job.findOne({ ghlJobId: opportunityId });
+    // Step 2: Find the job in MongoDB by GHL job ID
+    let job = await Job.findOne({ ghlJobId: opportunityId });
 
-    // // Step 3: Check if the job exists in MongoDB
-    // if (!job) {
-    //   console.error(`Job with GHL ID ${opportunityId} not found in MongoDB.`);
-    //   return res.status(404).send('Job not found');
-    // }
+    // Step 3: Check if the job exists in MongoDB
+    if (!job) {
+      console.error(`Job with GHL ID ${opportunityId} not found in MongoDB.`);
+      return res.status(404).send('Job not found');
+    }
 
-    // // Step 4: Extract custom data from the incoming request
-    // const { appt_time, service_address } = customData;
+    // Step 4: Extract custom data from the incoming request
+    const { appt_time, service_address } = customData;
 
-    // if (!appt_time || !service_address) {
-    //   console.error('Missing appointment time or opportunity location in custom data.');
-    //   return res.status(400).send('Invalid custom data received');
-    // }
+    if (!appt_time || !service_address) {
+      console.error('Missing appointment time or opportunity location in custom data.');
+      return res.status(400).send('Invalid custom data received');
+    }
 
-    // console.log(`Appointment Time: ${appt_time}, Location: ${service_address}`);
+    console.log(`Appointment Time: ${appt_time}, Location: ${service_address}`);
 
-    // // Step 5: Construct the note to be added to the job in Leap
-    // const noteContent = `Appointment booked for ${appt_time} at ${service_address}.`;
+    // Step 5: Construct the note to be added to the job in Leap
+    const noteContent = `Appointment booked for ${appt_time} at ${service_address}.`;
 
-    // // Step 6: Add the note to the job in Leap (using the job's Leap ID)
-    // try {
-    //   await addNoteToJob(job.leapJobId, noteContent);  // Assuming you have the Leap Job ID stored in the job document
-    //   console.log(`Note added to job ${job.leapJobId} in Leap: ${noteContent}`);
-    // } catch (error) {
-    //   console.error(`Error adding note to job ${job.leapJobId}:`, error.message);
-    //   return res.status(500).send('Failed to add note to job in Leap');
-    // }
+    // Step 6: Add the note to the job in Leap (using the job's Leap ID)
+    try {
+      await addNoteToJob(job.leapJobId, noteContent);  // Assuming you have the Leap Job ID stored in the job document
+      console.log(`Note added to job ${job.leapJobId} in Leap: ${noteContent}`);
+    } catch (error) {
+      console.error(`Error adding note to job ${job.leapJobId}:`, error.message);
+      return res.status(500).send('Failed to add note to job in Leap');
+    }
 
     res.status(200).send('Estimate appointment booking information processed successfully');
   } catch (error) {
