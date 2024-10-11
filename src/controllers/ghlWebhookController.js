@@ -1,5 +1,5 @@
 const { mapCustomerToLeap, mapJobToLeap } = require('../utils/dataMapper');
-const { syncCustomerToLeap, syncJobToLeap, updateJobStageInLeap } = require('../services/leapService');
+const { syncCustomerToLeap, syncJobToLeap, updateJobStageInLeap, addNoteToJob } = require('../services/leapService');
 const Customer = require('../models/Customer');
 const Job = require('../models/Job');
 const { ghlDefaultStageId, ghlStageMapping } = require('../../constants/ghlStageMapping');
@@ -7,6 +7,7 @@ const { leapStageMapping, leapDefaultStageId } = require('../../constants/leapSt
 const { fetchContactFromGHL } = require('../services/ghlService');
 const { ghlPipelineMapping, ghlDefaultPipeline } = require('../../constants/ghlPipelineMapping');
 const { getPipelineStageName, getPipelineStageId } = require('../helpers/getGhlPipelineStage');
+
 
 
 // Handle GHL customer (contact) webhook
