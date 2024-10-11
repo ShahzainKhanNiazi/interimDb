@@ -503,17 +503,17 @@ const handleEstimateBookingWebhook = async (req, res) => {
     }
 
     // Step 4: Extract custom data from the incoming request
-    const { appt_time, service_address } = customData;
+    const { appt_date, service_address } = customData;
 
-    if (!appt_time || !service_address) {
+    if (!appt_date || !service_address) {
       console.error('Missing appointment time or opportunity location in custom data.');
       return res.status(400).send('Invalid custom data received');
     }
 
-    console.log(`Appointment Time: ${appt_time}, Location: ${service_address}`);
+    console.log(`Appointment Time: ${appt_date}, Location: ${service_address}`);
 
     // Step 5: Construct the note to be added to the job in Leap
-    const noteContent = `Appointment booked for ${appt_time} at ${service_address}.`;
+    const noteContent = `Appointment booked for ${appt_date} at ${service_address}.`;
 
     // Step 6: Add the note to the job in Leap (using the job's Leap ID)
     try {
