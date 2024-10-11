@@ -35,7 +35,7 @@ const handleContactWebhook = async (req, res) => {
         firstName: customerData.firstName,
         lastName: customerData.lastName,
         email: customerData.email,
-        phone: customerData.phone,
+        phone: customerData.phone ? customerData?.phone.replace(/^\+\d/, '') : '',
         address: {
           addressLine: customerData.address1 || '',
           city: customerData.city || '',
@@ -95,8 +95,8 @@ const handleOpportunityWebhook = async (req, res) => {
       firstName: opportunityData.first_name,
       lastName: opportunityData.last_name,
       email: opportunityData.email,
-      // Remove the '+' sign from the phone number if it exists
-      phone: opportunityData.phone ? opportunityData.phone.replace('+', '') : '',
+      // Remove the '+' sign and the first digit after it from the phone number if it exists
+      phone: opportunityData.phone ? opportunityData.phone.replace(/^\+\d/, '') : '',
       address: {
         addressLine: opportunityData.address1,
         city: opportunityData.city,
@@ -269,7 +269,8 @@ const handleStageChangeWebhook = async (req, res) => {
     firstName: req.body?.first_name,
     lastName: req.body?.last_name,
     email: req.body?.email,
-    phone: req.body?.phone ? req.body.phone.replace('+', '') : '', // Remove '+' from phone
+    // Remove the '+' sign and the first digit after it from the phone number if it exists
+    phone: req.body?.phone ? req.body?.phone.replace(/^\+\d/, '') : '',
     address: {
       addressLine: req.body?.address1 || '',
       city: req.body?.city || '',
